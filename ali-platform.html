@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>لوحة تحكم م. علي فرج</title>
+<meta name="theme-color" content="#132038">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="لوحة علي فرج">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#132038;
+    --navy-2:#1c2f52;
+    --paper:#f4f2ec;
+    --card:#ffffff;
+    --brass:#c9973b;
+    --brass-dim:#e8c988;
+    --ink:#1c2230;
+    --muted:#6b7280;
+    --good:#3a7d5c;
+    --bad:#b54a3f;
+    --line:#e4e0d4;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0; overscroll-behavior:none;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'IBM Plex Sans Arabic', sans-serif;
+    min-height:100vh;
+    padding-bottom:78px;
+    -webkit-user-select:none; user-select:none;
+  }
+  input, select{ -webkit-user-select:text; user-select:text; }
+  h1,h2,h3,.brand,.stat-num{font-family:'Tajawal', sans-serif;}
+
+  /* header */
+  header{
+    background:linear-gradient(160deg, var(--navy) 0%, var(--navy-2) 100%);
+    color:#fff;
+    padding:22px 18px 26px;
+    position:relative;
+    overflow:hidden;
+  }
+  header::after{
+    content:"";
+    position:absolute; inset:0;
+    background-image:
+      radial-gradient(circle at 6px 6px, rgba(201,151,59,.35) 1.5px, transparent 1.6px);
+    background-size:26px 26px;
+    opacity:.5;
+  }
+  .brand-row{display:flex; align-items:center; justify-content:space-between; position:relative; z-index:1;}
+  .brand{font-size:19px; font-weight:900; letter-spacing:.3px;}
+  .brand small{display:block; font-family:'IBM Plex Sans Arabic'; font-weight:400; font-size:12px; color:var(--brass-dim); margin-top:2px;}
+  .badge{
+    background:rgba(201,151,59,.18);
+    border:1px solid rgba(201,151,59,.5);
+    color:var(--brass-dim);
+    font-size:11px; padding:5px 10px; border-radius:20px;
+  }
+
+  /* circuit stat rail */
+  .rail{
+    display:flex; margin-top:20px; position:relative; z-index:1;
+  }
+  .node{
+    flex:1; text-align:center; position:relative; padding:0 4px;
+  }
+  .node .stat-num{font-size:22px; font-weight:900; color:#fff;}
+  .node .stat-lbl{font-size:11px; color:var(--brass-dim); margin-top:2px;}
+  .node::before{
+    content:"";
+    position:absolute; top:-10px; left:50%; transform:translateX(-50%);
+    width:8px; height:8px; border-radius:50%;
+    background:var(--brass); box-shadow:0 0 0 3px rgba(201,151,59,.25);
+  }
+  .wire{
+    position:absolute; top:-6px; left:0; right:0; height:1px;
+    background:repeating-linear-gradient(90deg, rgba(201,151,59,.6) 0 6px, transparent 6px 11px);
+    z-index:0;
+  }
+
+  main{padding:16px;}
+  .section-title{
+    font-size:15px; font-weight:700; margin:4px 0 12px; display:flex; align-items:center; gap:8px;
+  }
+  .section-title::before{
+    content:""; width:4px; height:16px; background:var(--brass); border-radius:2px; display:inline-block;
+  }
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:14px;
+    margin-bottom:12px;
+  }
+  .empty{
+    text-align:center; color:var(--muted); font-size:13px; padding:24px 10px;
+    border:1px dashed var(--line); border-radius:14px;
+  }
+
+  .group-card{
+    border-right:4px solid var(--brass);
+  }
+  .row-between{display:flex; justify-content:space-between; align-items:flex-start; gap:8px;}
+  .g-name{font-weight:700; font-size:15px;}
+  .g-meta{font-size:12px; color:var(--muted); margin-top:4px; line-height:1.9;}
+  .pill{
+    display:inline-block; font-size:11px; padding:2px 9px; border-radius:20px;
+    background:#f2eee2; color:var(--navy); margin-left:5px;
+  }
+  .icon-btn{
+    border:none; background:#f2eee2; color:var(--navy); width:30px; height:30px; border-radius:8px;
+    font-size:14px; cursor:pointer;
+  }
+  .icon-btn.danger{background:#f6e5e1; color:var(--bad);}
+
+  .btn{
+    background:var(--navy); color:#fff; border:none; padding:11px 16px; border-radius:10px;
+    font-family:'IBM Plex Sans Arabic'; font-weight:600; font-size:13.5px; cursor:pointer; width:100%;
+  }
+  .btn.gold{background:var(--brass); color:var(--navy);}
+  .btn.ghost{background:transparent; border:1.5px solid var(--line); color:var(--ink);}
+  .btn.small{width:auto; padding:8px 14px; font-size:12.5px;}
+
+  .field{margin-bottom:10px;}
+  .field label{display:block; font-size:12px; color:var(--muted); margin-bottom:4px;}
+  .field input, .field select{
+    width:100%; padding:10px 12px; border:1.5px solid var(--line); border-radius:10px;
+    font-family:'IBM Plex Sans Arabic'; font-size:13.5px; background:#fbfaf7;
+  }
+  .field input:focus, .field select:focus{outline:none; border-color:var(--brass);}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+
+  .student-row{
+    display:flex; align-items:center; justify-content:space-between; padding:10px 4px;
+    border-bottom:1px solid var(--line); font-size:13.5px;
+  }
+  .student-row:last-child{border-bottom:none;}
+  .s-name{font-weight:600;}
+  .s-phone{font-size:11.5px; color:var(--muted); direction:ltr; display:inline-block;}
+
+  .toggle{
+    border:1.5px solid var(--line); background:#fff; border-radius:20px; padding:5px 12px; font-size:12px;
+    cursor:pointer; font-family:'IBM Plex Sans Arabic'; font-weight:600;
+  }
+  .toggle.paid{background:#e9f3ee; border-color:var(--good); color:var(--good);}
+  .toggle.unpaid{background:#faece9; border-color:var(--bad); color:var(--bad);}
+  .toggle.present{background:#e9f3ee; border-color:var(--good); color:var(--good);}
+  .toggle.absent{background:#faece9; border-color:var(--bad); color:var(--bad);}
+
+  .month-bar{
+    display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; gap:8px;
+  }
+  .month-bar select{flex:1;}
+
+  .rev-card{
+    background:linear-gradient(135deg, var(--navy), var(--navy-2)); color:#fff; border-radius:14px; padding:16px; margin-bottom:14px;
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .rev-num{font-size:26px; font-weight:900; font-family:'Tajawal';}
+  .rev-lbl{font-size:11.5px; color:var(--brass-dim); margin-top:2px;}
+
+  /* bottom nav */
+  nav{
+    position:fixed; bottom:0; right:0; left:0; background:#fff; border-top:1px solid var(--line);
+    display:flex; padding:6px 4px calc(6px + env(safe-area-inset-bottom));
+    z-index:50;
+  }
+  nav button{
+    flex:1; background:none; border:none; padding:7px 1px; display:flex; flex-direction:column;
+    align-items:center; gap:2px; font-family:'IBM Plex Sans Arabic'; font-size:9.5px; color:var(--muted);
+    cursor:pointer;
+  }
+  nav button.active{color:var(--navy); font-weight:700;}
+  nav button .dot{width:5px; height:5px; border-radius:50%; background:var(--brass); opacity:0;}
+  nav button.active .dot{opacity:1;}
+  nav button .ic{font-size:16px;}
+
+  .modal-bg{
+    position:fixed; inset:0; background:rgba(19,32,56,.55); display:flex; align-items:flex-end;
+    z-index:100;
+  }
+  .modal{
+    background:#fff; width:100%; border-radius:18px 18px 0 0; padding:18px; max-height:88vh; overflow-y:auto;
+  }
+  .modal h3{margin:0 0 14px; font-size:16px;}
+  .close-x{position:absolute; left:16px; top:16px; background:#f2eee2; border:none; width:28px; height:28px; border-radius:8px; cursor:pointer;}
+
+  .tabs{display:flex; gap:8px; margin-bottom:14px; overflow-x:auto;}
+  .tabs button{
+    border:1.5px solid var(--line); background:#fff; padding:7px 13px; border-radius:20px; font-size:12.5px;
+    white-space:nowrap; font-family:'IBM Plex Sans Arabic'; cursor:pointer; color:var(--ink);
+  }
+  .tabs button.active{background:var(--navy); color:#fff; border-color:var(--navy);}
+
+  .hidden{display:none !important;}
+
+  .alert-card{
+    background:#fdf1ec; border:1.5px solid var(--bad); border-radius:14px; padding:13px 14px; margin-bottom:14px;
+    display:flex; align-items:center; justify-content:space-between; gap:10px; cursor:pointer;
+  }
+  .alert-card .a-title{font-weight:700; font-size:13.5px; color:var(--bad);}
+  .alert-card .a-sub{font-size:11.5px; color:#8a5a4f; margin-top:2px;}
+  .alert-num{
+    background:var(--bad); color:#fff; font-weight:900; font-family:'Tajawal'; font-size:18px;
+    width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+
+  .contact-row{display:flex; gap:6px; margin-top:6px;}
+  .contact-btn{
+    border:1.5px solid var(--line); background:#fff; border-radius:8px; padding:5px 9px; font-size:11px;
+    font-family:'IBM Plex Sans Arabic'; cursor:pointer; text-decoration:none; color:var(--ink); display:inline-flex; align-items:center; gap:4px;
+  }
+  .contact-btn.wa{border-color:#3a7d5c; color:#3a7d5c;}
+  .contact-btn.call{border-color:var(--navy); color:var(--navy);}
+
+  .day-group{margin-bottom:16px;}
+  .day-head{
+    font-family:'Tajawal'; font-weight:700; font-size:13.5px; color:var(--navy);
+    background:#eee9da; padding:6px 12px; border-radius:8px; margin-bottom:8px; display:inline-block;
+  }
+
+  #printReport{display:none;}
+  @media print{
+    body{padding-bottom:0 !important;}
+    header, nav, .tabs, .btn, .icon-btn, #view-overview, #view-groups, #view-students, #view-sessions, #view-payments, #view-schedule{
+      display:none !important;
+    }
+    #printReport{
+      display:block !important; padding:0; direction:rtl; font-family:'IBM Plex Sans Arabic', sans-serif; color:#111;
+    }
+    #printReport h2{font-family:'Tajawal'; font-size:20px; margin-bottom:2px;}
+    #printReport .rep-sub{color:#555; font-size:12px; margin-bottom:16px;}
+    #printReport table{width:100%; border-collapse:collapse; margin-bottom:18px; font-size:12.5px;}
+    #printReport th, #printReport td{border:1px solid #ccc; padding:6px 8px; text-align:right;}
+    #printReport th{background:#f0ece0;}
+    #printReport .rep-group-title{font-weight:700; margin:14px 0 6px; font-size:14px;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand-row">
+    <div class="brand">م. علي فرج <small>لوحة إدارة المجموعات والطلاب</small></div>
+    <div class="badge">فيزياء وكيمياء</div>
+  </div>
+  <div class="rail">
+    <div class="wire"></div>
+    <div class="node"><div class="stat-num" id="statGroups">0</div><div class="stat-lbl">مجموعة</div></div>
+    <div class="node"><div class="stat-num" id="statStudents">0</div><div class="stat-lbl">طالب</div></div>
+    <div class="node"><div class="stat-num" id="statUnpaid">0</div><div class="stat-lbl">لسه مادفعش</div></div>
+  </div>
+</header>
+
+<main>
+
+  <!-- OVERVIEW -->
+  <section id="view-overview">
+    <div class="alert-card hidden" id="unpaidAlert" onclick="switchView('payments')">
+      <div>
+        <div class="a-title">فيه طلاب متأخرين في الدفع الشهر ده</div>
+        <div class="a-sub">دوس هنا تشوف مين وتبعتله تذكير</div>
+      </div>
+      <div class="alert-num" id="unpaidAlertNum">0</div>
+    </div>
+
+    <div class="rev-card">
+      <div>
+        <div class="rev-num" id="revThisMonth">0 ج.م</div>
+        <div class="rev-lbl">إجمالي المحصّل هذا الشهر</div>
+      </div>
+      <div style="text-align:left">
+        <div class="rev-num" id="revExpected">0 ج.م</div>
+        <div class="rev-lbl">المتوقع لو الكل دفع</div>
+      </div>
+    </div>
+
+    <div class="section-title">مجموعاتك</div>
+    <div id="overviewGroups"></div>
+
+    <div class="section-title" style="margin-top:18px">أقرب حصص</div>
+    <div id="upcomingSessions" class="card"></div>
+
+    <div class="section-title" style="margin-top:18px">النسخة الاحتياطية</div>
+    <div class="card">
+      <div style="font-size:12.5px; color:var(--muted); margin-bottom:10px;">احفظ نسخة من بياناتك بين فترة والتانية عشان متضيعش لو حصل أي حاجة للموبايل</div>
+      <button class="btn ghost" onclick="exportBackup()">⬇ تصدير نسخة احتياطية</button>
+      <div style="height:8px"></div>
+      <button class="btn ghost" onclick="document.getElementById('importFile').click()">⬆ استيراد نسخة احتياطية</button>
+      <input type="file" id="importFile" accept="application/json" class="hidden" onchange="importBackup(event)">
+    </div>
+  </section>
+
+  <!-- GROUPS -->
+  <section id="view-groups" class="hidden">
+    <button class="btn gold" onclick="openGroupModal()">+ إضافة مجموعة جديدة</button>
+    <div style="height:14px"></div>
+    <div id="groupsList"></div>
+  </section>
+
+  <!-- STUDENTS -->
+  <section id="view-students" class="hidden">
+    <div class="field">
+      <label>اختر المجموعة</label>
+      <select id="studentGroupSelect" onchange="renderStudents()"></select>
+    </div>
+    <button class="btn gold" onclick="openStudentModal()">+ إضافة طالب</button>
+    <div style="height:14px"></div>
+    <div id="studentsList"></div>
+  </section>
+
+  <!-- SESSIONS / ATTENDANCE -->
+  <section id="view-sessions" class="hidden">
+    <div class="field">
+      <label>اختر المجموعة</label>
+      <select id="sessionGroupSelect" onchange="renderSessionArea()"></select>
+    </div>
+    <div class="field">
+      <label>تاريخ الحصة</label>
+      <input type="date" id="sessionDate" onchange="renderSessionArea()">
+    </div>
+    <div id="sessionAttendance"></div>
+    <div class="card" id="sessionHistory"></div>
+  </section>
+
+  <!-- PAYMENTS -->
+  <section id="view-payments" class="hidden">
+    <div class="month-bar">
+      <select id="paymentMonth" onchange="renderPayments()"></select>
+      <select id="paymentGroupFilter" onchange="renderPayments()"></select>
+    </div>
+    <button class="btn ghost" onclick="printMonthlyReport()">🖨 تصدير تقرير الشهر (PDF)</button>
+    <div style="height:12px"></div>
+    <div id="paymentsList"></div>
+  </section>
+
+  <!-- WEEKLY SCHEDULE -->
+  <section id="view-schedule" class="hidden">
+    <div id="scheduleList"></div>
+  </section>
+
+</main>
+
+<!-- PRINT-ONLY REPORT (shown only via window.print) -->
+<div id="printReport"></div>
+
+<nav>
+  <button class="active" data-view="overview" onclick="switchView('overview')"><span class="ic">◈</span>الرئيسية<span class="dot"></span></button>
+  <button data-view="groups" onclick="switchView('groups')"><span class="ic">▤</span>المجموعات<span class="dot"></span></button>
+  <button data-view="students" onclick="switchView('students')"><span class="ic">☺</span>الطلاب<span class="dot"></span></button>
+  <button data-view="sessions" onclick="switchView('sessions')"><span class="ic">◷</span>الحصص<span class="dot"></span></button>
+  <button data-view="schedule" onclick="switchView('schedule')"><span class="ic">▦</span>الجدول<span class="dot"></span></button>
+  <button data-view="payments" onclick="switchView('payments')"><span class="ic">₤</span>التحصيل<span class="dot"></span></button>
+</nav>
+
+<script>
+let DATA = { groups: [], students: [], payments: {}, sessions: [] };
+const DAYS = ["الأحد","الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"];
+const MONTHS_AR = ["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
+
+async function loadData(){
+  try{
+    const raw = localStorage.getItem('platform-data');
+    if(raw){ DATA = JSON.parse(raw); }
+  }catch(e){ console.log('لا توجد بيانات محفوظة بعد', e); }
+  renderAll();
+}
+async function saveData(){
+  try{ localStorage.setItem('platform-data', JSON.stringify(DATA)); }
+  catch(e){ console.error('فشل الحفظ', e); }
+}
+
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+
+function currentMonthKey(d = new Date()){
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+}
+function monthLabel(key){
+  const [y,m] = key.split('-'); return `${MONTHS_AR[parseInt(m)-1]} ${y}`;
+}
+
+function switchView(name){
+  document.querySelectorAll('main > section').forEach(s=>s.classList.add('hidden'));
+  document.getElementById('view-'+name).classList.remove('hidden');
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active', b.dataset.view===name));
+  if(name==='students') renderStudents();
+  if(name==='sessions') renderSessionArea();
+  if(name==='payments') renderPayments();
+  if(name==='schedule') renderSchedule();
+}
+
+/* ---------- GROUPS ---------- */
+function openGroupModal(editId){
+  const g = editId ? DATA.groups.find(x=>x.id===editId) : null;
+  const bg = document.createElement('div');
+  bg.className = 'modal-bg';
+  bg.innerHTML = `
+    <div class="modal" style="position:relative">
+      <button class="close-x" onclick="this.closest('.modal-bg').remove()">✕</button>
+      <h3>${g? 'تعديل المجموعة':'إضافة مجموعة جديدة'}</h3>
+      <div class="field"><label>اسم المجموعة</label><input id="gName" value="${g?g.name:''}" placeholder="مثال: مجموعة تالتة ثانوي - الأحد"></div>
+      <div class="field"><label>المكان</label><input id="gLoc" value="${g?g.location:''}" placeholder="مثال: البرامون"></div>
+      <div class="grid2">
+        <div class="field"><label>اليوم</label>
+          <select id="gDay">${DAYS.map((d,i)=>`<option value="${i}" ${g&&g.day==i?'selected':''}>${d}</option>`).join('')}</select>
+        </div>
+        <div class="field"><label>الوقت</label><input id="gTime" type="time" value="${g?g.time:'16:00'}"></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>اشتراك الشهر (ج.م)</label><input id="gPrice" type="number" value="${g?g.price:150}"></div>
+        <div class="field"><label>الصف الدراسي</label>
+          <select id="gLevel">
+            <option value="أولى ثانوي" ${g&&g.level==='أولى ثانوي'?'selected':''}>أولى ثانوي</option>
+            <option value="تانية ثانوي" ${g&&g.level==='تانية ثانوي'?'selected':''}>تانية ثانوي</option>
+            <option value="تالتة ثانوي" ${g&&g.level==='تالتة ثانوي'?'selected':''}>تالتة ثانوي</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn gold" onclick="saveGroup(${g?`'${g.id}'`:'null'})">${g?'حفظ التعديلات':'إضافة المجموعة'}</button>
+      ${g?`<div style="height:8px"></div><button class="btn ghost" onclick="deleteGroup('${g.id}')">حذف المجموعة</button>`:''}
+    </div>`;
+  document.body.appendChild(bg);
+}
+function saveGroup(id){
+  const name = document.getElementById('gName').value.trim();
+  if(!name){ alert('اكتب اسم المجموعة'); return; }
+  const obj = {
+    id: id || uid(),
+    name,
+    location: document.getElementById('gLoc').value.trim(),
+    day: parseInt(document.getElementById('gDay').value),
+    time: document.getElementById('gTime').value,
+    price: parseFloat(document.getElementById('gPrice').value) || 0,
+    level: document.getElementById('gLevel').value
+  };
+  if(id){ const i = DATA.groups.findIndex(g=>g.id===id); DATA.groups[i] = obj; }
+  else DATA.groups.push(obj);
+  document.querySelector('.modal-bg').remove();
+  saveData(); renderAll();
+}
+function deleteGroup(id){
+  if(!confirm('هتحذف المجموعة وكل الطلاب المرتبطين بيها. متأكد؟')) return;
+  DATA.groups = DATA.groups.filter(g=>g.id!==id);
+  DATA.students = DATA.students.filter(s=>s.groupId!==id);
+  document.querySelector('.modal-bg').remove();
+  saveData(); renderAll();
+}
+
+function renderGroups(){
+  const list = document.getElementById('groupsList');
+  if(DATA.groups.length===0){ list.innerHTML = `<div class="empty">لسه مفيش مجموعات. ابدأ بإضافة أول مجموعة 👆</div>`; return; }
+  list.innerHTML = DATA.groups.map(g=>{
+    const count = DATA.students.filter(s=>s.groupId===g.id).length;
+    return `
+    <div class="card group-card">
+      <div class="row-between">
+        <div>
+          <div class="g-name">${g.name}</div>
+          <div class="g-meta">
+            📍 ${g.location||'—'} &nbsp;|&nbsp; ${DAYS[g.day]} الساعة ${g.time}<br>
+            <span class="pill">${g.level}</span><span class="pill">${count} طالب</span><span class="pill">${g.price} ج.م/شهر</span>
+          </div>
+        </div>
+        <button class="icon-btn" onclick="openGroupModal('${g.id}')">✎</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderOverviewGroups(){
+  const el = document.getElementById('overviewGroups');
+  if(DATA.groups.length===0){ el.innerHTML = `<div class="empty">أضف مجموعاتك من تبويب "المجموعات"</div>`; return; }
+  el.innerHTML = DATA.groups.map(g=>{
+    const count = DATA.students.filter(s=>s.groupId===g.id).length;
+    return `<div class="card group-card"><div class="row-between">
+      <div><div class="g-name">${g.name}</div>
+      <div class="g-meta">${DAYS[g.day]} ${g.time} &nbsp;|&nbsp; ${count} طالب</div></div>
+    </div></div>`;
+  }).join('');
+}
+
+function renderUpcoming(){
+  const el = document.getElementById('upcomingSessions');
+  if(DATA.groups.length===0){ el.innerHTML='لا توجد حصص بعد.'; return; }
+  const today = new Date();
+  const items = DATA.groups.map(g=>{
+    let diff = (g.day - today.getDay() + 7) % 7;
+    const d = new Date(today); d.setDate(today.getDate()+diff);
+    return {g, d};
+  }).sort((a,b)=>a.d-b.d).slice(0,5);
+  el.innerHTML = items.map(({g,d})=>`
+    <div class="student-row">
+      <span class="s-name">${g.name}</span>
+      <span class="s-phone" style="direction:rtl">${d.toLocaleDateString('ar-EG',{weekday:'long', day:'numeric', month:'short'})} - ${g.time}</span>
+    </div>`).join('');
+}
+
+function renderSchedule(){
+  const el = document.getElementById('scheduleList');
+  if(DATA.groups.length===0){ el.innerHTML = `<div class="empty">أضف مجموعاتك عشان تشوف جدولك الأسبوعي</div>`; return; }
+  el.innerHTML = DAYS.map((dayName, dayIdx)=>{
+    const groups = DATA.groups.filter(g=>g.day===dayIdx).sort((a,b)=>a.time.localeCompare(b.time));
+    if(groups.length===0) return '';
+    return `<div class="day-group">
+      <div class="day-head">${dayName}</div>
+      ${groups.map(g=>{
+        const count = DATA.students.filter(s=>s.groupId===g.id).length;
+        return `<div class="card group-card"><div class="row-between">
+          <div><div class="g-name">${g.name}</div>
+          <div class="g-meta">🕐 ${g.time} &nbsp;|&nbsp; 📍 ${g.location||'—'} &nbsp;|&nbsp; ${count} طالب</div></div>
+        </div></div>`;
+      }).join('')}
+    </div>`;
+  }).join('') || `<div class="empty">لسه ملكش مجموعات على أيام محددة</div>`;
+}
+
+/* ---------- STUDENTS ---------- */
+function populateGroupSelects(){
+  const opts = DATA.groups.map(g=>`<option value="${g.id}">${g.name}</option>`).join('');
+  ['studentGroupSelect','sessionGroupSelect'].forEach(id=>{
+    const sel = document.getElementById(id);
+    const prev = sel.value;
+    sel.innerHTML = opts || `<option value="">لا توجد مجموعات</option>`;
+    if(prev) sel.value = prev;
+  });
+  const filterSel = document.getElementById('paymentGroupFilter');
+  filterSel.innerHTML = `<option value="all">كل المجموعات</option>` + opts;
+}
+
+function openStudentModal(){
+  const groupId = document.getElementById('studentGroupSelect').value;
+  if(!groupId){ alert('أضف مجموعة الأول من تبويب المجموعات'); return; }
+  const bg = document.createElement('div');
+  bg.className='modal-bg';
+  bg.innerHTML = `
+    <div class="modal" style="position:relative">
+      <button class="close-x" onclick="this.closest('.modal-bg').remove()">✕</button>
+      <h3>إضافة طالب</h3>
+      <div class="field"><label>اسم الطالب</label><input id="sName" placeholder="اسم الطالب"></div>
+      <div class="field"><label>رقم موبايل الطالب</label><input id="sPhone" type="tel" placeholder="01xxxxxxxxx"></div>
+      <div class="field"><label>رقم ولي الأمر</label><input id="sParent" type="tel" placeholder="01xxxxxxxxx"></div>
+      <button class="btn gold" onclick="saveStudent('${groupId}')">إضافة الطالب</button>
+    </div>`;
+  document.body.appendChild(bg);
+}
+function saveStudent(groupId){
+  const name = document.getElementById('sName').value.trim();
+  if(!name){ alert('اكتب اسم الطالب'); return; }
+  DATA.students.push({
+    id: uid(), groupId, name,
+    phone: document.getElementById('sPhone').value.trim(),
+    parentPhone: document.getElementById('sParent').value.trim()
+  });
+  document.querySelector('.modal-bg').remove();
+  saveData(); renderAll();
+}
+function deleteStudent(id){
+  if(!confirm('حذف الطالب من المجموعة؟')) return;
+  DATA.students = DATA.students.filter(s=>s.id!==id);
+  saveData(); renderAll();
+}
+
+function renderStudents(){
+  const groupId = document.getElementById('studentGroupSelect').value;
+  const list = document.getElementById('studentsList');
+  const students = DATA.students.filter(s=>s.groupId===groupId);
+  if(!groupId){ list.innerHTML = `<div class="empty">أضف مجموعة الأول</div>`; return; }
+  if(students.length===0){ list.innerHTML = `<div class="empty">لا يوجد طلاب في هذه المجموعة بعد</div>`; return; }
+  list.innerHTML = `<div class="card">` + students.map(s=>`
+    <div class="student-row">
+      <div>
+        <div class="s-name">${s.name}</div>
+        <div class="s-phone">${s.phone||''}${s.parentPhone? ' / ولي الأمر: '+s.parentPhone:''}</div>
+      </div>
+      <button class="icon-btn danger" onclick="deleteStudent('${s.id}')">✕</button>
+    </div>`).join('') + `</div>`;
+}
+
+/* ---------- SESSIONS / ATTENDANCE ---------- */
+function initSessionDate(){
+  const inp = document.getElementById('sessionDate');
+  if(!inp.value) inp.value = new Date().toISOString().slice(0,10);
+}
+function renderSessionArea(){
+  initSessionDate();
+  const groupId = document.getElementById('sessionGroupSelect').value;
+  const date = document.getElementById('sessionDate').value;
+  const area = document.getElementById('sessionAttendance');
+  const histEl = document.getElementById('sessionHistory');
+  if(!groupId){ area.innerHTML = `<div class="empty">أضف مجموعة أولاً</div>`; histEl.innerHTML=''; return; }
+  const students = DATA.students.filter(s=>s.groupId===groupId);
+  if(students.length===0){ area.innerHTML = `<div class="empty">أضف طلاب لهذه المجموعة أولاً</div>`; histEl.innerHTML=''; return; }
+
+  let session = DATA.sessions.find(sess=>sess.groupId===groupId && sess.date===date);
+  if(!session){ session = {id:uid(), groupId, date, records:{}}; }
+
+  area.innerHTML = `<div class="card">` + students.map(s=>{
+    const present = session.records[s.id];
+    const state = present===true ? 'present' : present===false ? 'absent' : '';
+    const label = present===true ? 'حاضر' : present===false ? 'غايب' : 'حضّر';
+    return `<div class="student-row">
+      <span class="s-name">${s.name}</span>
+      <button class="toggle ${state}" onclick="markAttendance('${groupId}','${date}','${s.id}')">${label}</button>
+    </div>`;
+  }).join('') + `</div>`;
+
+  // history summary for this group
+  const groupSessions = DATA.sessions.filter(sess=>sess.groupId===groupId).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,6);
+  histEl.innerHTML = `<div class="section-title" style="margin-bottom:8px">آخر الحصص المسجلة</div>` +
+    (groupSessions.length ? groupSessions.map(sess=>{
+      const present = Object.values(sess.records).filter(v=>v===true).length;
+      const total = Object.keys(sess.records).length;
+      return `<div class="student-row"><span>${sess.date}</span><span class="pill">${present}/${total} حاضر</span></div>`;
+    }).join('') : `<div style="color:var(--muted); font-size:12.5px">لا يوجد سجل حضور بعد</div>`);
+}
+function markAttendance(groupId, date, studentId){
+  let session = DATA.sessions.find(sess=>sess.groupId===groupId && sess.date===date);
+  if(!session){ session = {id:uid(), groupId, date, records:{}}; DATA.sessions.push(session); }
+  const cur = session.records[studentId];
+  session.records[studentId] = cur===undefined ? true : cur===true ? false : true;
+  saveData(); renderSessionArea(); renderAll();
+}
+
+/* ---------- PAYMENTS ---------- */
+function populateMonthSelect(){
+  const sel = document.getElementById('paymentMonth');
+  const now = new Date();
+  const opts = [];
+  for(let i=0;i<6;i++){
+    const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
+    const key = currentMonthKey(d);
+    opts.push(`<option value="${key}">${monthLabel(key)}</option>`);
+  }
+  const prev = sel.value;
+  sel.innerHTML = opts.join('');
+  sel.value = prev || currentMonthKey();
+}
+function togglePayment(studentId, monthKey){
+  if(!DATA.payments[monthKey]) DATA.payments[monthKey] = {};
+  DATA.payments[monthKey][studentId] = !DATA.payments[monthKey][studentId];
+  saveData(); renderPayments(); renderAll();
+}
+function egyptWaLink(phone, message){
+  if(!phone) return null;
+  let clean = phone.replace(/[^0-9]/g,'');
+  if(clean.startsWith('0')) clean = '2'+clean; // 0100... -> 20100...
+  else if(!clean.startsWith('20')) clean = '20'+clean;
+  return `https://wa.me/${clean}?text=${encodeURIComponent(message)}`;
+}
+
+function renderPayments(){
+  populateMonthSelect();
+  const monthKey = document.getElementById('paymentMonth').value;
+  const groupFilter = document.getElementById('paymentGroupFilter').value;
+  const list = document.getElementById('paymentsList');
+  let students = DATA.students;
+  if(groupFilter && groupFilter!=='all') students = students.filter(s=>s.groupId===groupFilter);
+
+  if(students.length===0){ list.innerHTML = `<div class="empty">لا يوجد طلاب لعرضهم</div>`; return; }
+
+  const byGroup = {};
+  students.forEach(s=>{ (byGroup[s.groupId] = byGroup[s.groupId]||[]).push(s); });
+
+  list.innerHTML = Object.entries(byGroup).map(([groupId, studs])=>{
+    const g = DATA.groups.find(x=>x.id===groupId);
+    const rows = studs.map(s=>{
+      const paid = DATA.payments[monthKey] && DATA.payments[monthKey][s.id];
+      const msg = `تذكير بسيط: اشتراك ${monthLabel(monthKey)} لسه ما وصلش لمجموعة ${g?g.name:''} - يرجى السداد في أقرب وقت. شكرًا 🙏`;
+      const waPhone = s.parentPhone || s.phone;
+      const waLink = egyptWaLink(waPhone, msg);
+      const contactHtml = (!paid && waPhone) ? `
+        <div class="contact-row">
+          <a class="contact-btn wa" href="${waLink}" target="_blank" onclick="event.stopPropagation()">💬 واتساب</a>
+          <a class="contact-btn call" href="tel:${waPhone}" onclick="event.stopPropagation()">📞 اتصال</a>
+        </div>` : '';
+      return `<div class="student-row" style="flex-direction:column; align-items:stretch;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span class="s-name">${s.name}</span>
+          <button class="toggle ${paid?'paid':'unpaid'}" onclick="togglePayment('${s.id}','${monthKey}')">${paid?'دفع ✓':'لسه لأ'}</button>
+        </div>
+        ${contactHtml}
+      </div>`;
+    }).join('');
+    return `<div class="section-title" style="margin-top:14px">${g?g.name:'—'}</div><div class="card">${rows}</div>`;
+  }).join('');
+}
+
+/* ---------- STATS / DASHBOARD ---------- */
+function renderStats(){
+  document.getElementById('statGroups').textContent = DATA.groups.length;
+  document.getElementById('statStudents').textContent = DATA.students.length;
+
+  const monthKey = currentMonthKey();
+  const monthPayments = DATA.payments[monthKey] || {};
+  const paidCount = DATA.students.filter(s=>monthPayments[s.id]).length;
+  const unpaidCount = DATA.students.length - paidCount;
+  document.getElementById('statUnpaid').textContent = unpaidCount;
+
+  const alertEl = document.getElementById('unpaidAlert');
+  if(unpaidCount > 0 && DATA.students.length > 0){
+    alertEl.classList.remove('hidden');
+    document.getElementById('unpaidAlertNum').textContent = unpaidCount;
+  } else {
+    alertEl.classList.add('hidden');
+  }
+
+  let collected = 0, expected = 0;
+  DATA.students.forEach(s=>{
+    const g = DATA.groups.find(x=>x.id===s.groupId);
+    const price = g? g.price : 0;
+    expected += price;
+    if(monthPayments[s.id]) collected += price;
+  });
+  document.getElementById('revThisMonth').textContent = collected.toLocaleString('ar-EG') + ' ج.م';
+  document.getElementById('revExpected').textContent = expected.toLocaleString('ar-EG') + ' ج.م';
+}
+
+function printMonthlyReport(){
+  const monthKey = document.getElementById('paymentMonth').value || currentMonthKey();
+  const monthPayments = DATA.payments[monthKey] || {};
+  const monthSessions = DATA.sessions.filter(s=>s.date.startsWith(monthKey));
+
+  let totalCollected = 0, totalExpected = 0;
+  const groupsHtml = DATA.groups.map(g=>{
+    const studs = DATA.students.filter(s=>s.groupId===g.id);
+    if(studs.length===0) return '';
+    let collected = 0, expected = 0;
+    const unpaidNames = [];
+    studs.forEach(s=>{
+      expected += g.price;
+      if(monthPayments[s.id]) collected += g.price;
+      else unpaidNames.push(s.name);
+    });
+    totalCollected += collected; totalExpected += expected;
+
+    const gSessions = monthSessions.filter(s=>s.groupId===g.id);
+    let attendanceRow = '';
+    if(gSessions.length){
+      const totalMarks = gSessions.reduce((acc,s)=>acc+Object.keys(s.records).length,0);
+      const presentMarks = gSessions.reduce((acc,s)=>acc+Object.values(s.records).filter(v=>v===true).length,0);
+      const rate = totalMarks ? Math.round(presentMarks/totalMarks*100) : 0;
+      attendanceRow = `<tr><td>متوسط الحضور</td><td colspan="2">${rate}% (${gSessions.length} حصة مسجّلة)</td></tr>`;
+    }
+
+    return `
+      <div class="rep-group-title">${g.name} (${studs.length} طالب)</div>
+      <table>
+        <tr><th>البند</th><th colspan="2">القيمة</th></tr>
+        <tr><td>المتوقع</td><td colspan="2">${expected.toLocaleString('ar-EG')} ج.م</td></tr>
+        <tr><td>المحصّل</td><td colspan="2">${collected.toLocaleString('ar-EG')} ج.م</td></tr>
+        <tr><td>لسه مادفعوش</td><td colspan="2">${unpaidNames.length ? unpaidNames.join('، ') : 'لا يوجد'}</td></tr>
+        ${attendanceRow}
+      </table>`;
+  }).join('');
+
+  document.getElementById('printReport').innerHTML = `
+    <h2>تقرير ${monthLabel(monthKey)}</h2>
+    <div class="rep-sub">م. علي فرج - فيزياء وكيمياء</div>
+    <table>
+      <tr><th>الإجمالي المتوقع</th><th>الإجمالي المحصّل</th></tr>
+      <tr><td>${totalExpected.toLocaleString('ar-EG')} ج.م</td><td>${totalCollected.toLocaleString('ar-EG')} ج.م</td></tr>
+    </table>
+    ${groupsHtml || '<div>لا يوجد طلاب مسجلين</div>'}
+  `;
+  setTimeout(()=>window.print(), 150);
+}
+
+function renderAll(){
+  renderStats();
+  renderGroups();
+  renderOverviewGroups();
+  renderUpcoming();
+  populateGroupSelects();
+  const sSel = document.getElementById('studentGroupSelect');
+  if(sSel.value) renderStudents();
+}
+
+function exportBackup(){
+  const blob = new Blob([JSON.stringify(DATA, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const today = new Date().toISOString().slice(0,10);
+  a.href = url;
+  a.download = `نسخة-احتياطية-علي-فرج-${today}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function importBackup(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try{
+      const parsed = JSON.parse(e.target.result);
+      if(!parsed || !Array.isArray(parsed.groups) || !Array.isArray(parsed.students)){
+        alert('الملف ده مش نسخة احتياطية صحيحة');
+        return;
+      }
+      if(!confirm('هيتم استبدال كل البيانات الحالية بالنسخة اللي في الملف. متأكد؟')) return;
+      DATA = parsed;
+      saveData();
+      renderAll();
+      alert('تم استرجاع النسخة الاحتياطية بنجاح');
+    }catch(err){
+      alert('حصل خطأ في قراءة الملف، تأكد إنه ملف نسخة احتياطية صحيح');
+    }
+    event.target.value = '';
+  };
+  reader.readAsText(file);
+}
+
+loadData();
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('sw.js').catch(e=>console.log('SW registration failed', e));
+  });
+}
+</script>
+</body>
+</html>
