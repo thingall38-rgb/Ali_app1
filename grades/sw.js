@@ -1,6 +1,6 @@
 // يشتغل من غير نت: الصفحة بتتجاب من النت لو متاح (عشان التحديثات) وإلا من الكاش
-const CACHE = 'ali-grades-v2';
-const ASSETS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './firebase-config.js'];
+const CACHE = 'ali-grades-v3';
+const ASSETS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)));
@@ -19,10 +19,9 @@ self.addEventListener('fetch', (e) => {
   const req = e.request;
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
-  // الكاش للتطبيق نفسه والخطوط ومكتبة Firebase بس؛ طلبات السيرفر (Firestore/Auth) تعدي مباشرة
-  const cacheable = url.origin === self.location.origin ||
-    /^fonts\.(googleapis|gstatic)\.com$/.test(url.hostname) ||
-    (url.hostname === 'www.gstatic.com' && url.pathname.startsWith('/firebasejs/'));
+  // الكاش لملفات التطبيق والخطوط بس؛ طلبات سيرفر المزامنة (/api/) تعدي مباشرة
+  if (url.origin === self.location.origin && url.pathname.startsWith('/api/')) return;
+  const cacheable = url.origin === self.location.origin || /^fonts\.(googleapis|gstatic)\.com$/.test(url.hostname);
   if (!cacheable) return;
 
   // ملفات التطبيق: من النت الأول (عشان التحديثات) ولو مفيش نت من الكاش
