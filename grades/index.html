@@ -153,6 +153,12 @@ details.adv>summary{cursor:pointer;font-weight:700;padding:12px;background:var(-
  <div class="card"><b>تصدير للصق في إكسل</b><p style="color:var(--mute);font-size:.85rem;margin:4px 0">بيتنسخ جدول جاهز تلصقه في إكسل أو Google Sheets.</p>
   <div id="exBox"><button class="btn alt" data-ex="st">الطلاب</button> <button class="btn alt" data-ex="gr">الدرجات</button> <button class="btn alt" data-ex="at">الحضور</button> <button class="btn alt" data-ex="pa">المدفوعات</button></div>
   <textarea id="exOut" rows="4" hidden style="margin-top:8px;font-size:.8rem"></textarea></div>
+ <div class="card" id="fbCard"><b>☁ المزامنة مع السيرفر (Firebase)</b>
+  <p id="fbSt" style="color:var(--mute);font-size:.85rem;margin:4px 0"></p>
+  <div id="fbCfgBox"><label>إعدادات Firebase (الصق firebaseConfig من Firebase Console)</label><textarea id="fbCfgIn" rows="5" dir="ltr" style="font-size:.8rem" placeholder='apiKey: "...", authDomain: "...", projectId: "...", appId: "..."'></textarea><button class="btn" id="fbCfgSave">حفظ الإعدادات</button></div>
+  <div id="fbLogin" hidden><label>الإيميل</label><input id="fbEmail" type="email" dir="ltr" autocomplete="username"><label>كلمة السر (6 حروف أو أكتر)</label><input id="fbPass" type="password" dir="ltr" autocomplete="current-password">
+   <button class="btn" id="fbIn">دخول</button> <button class="btn alt" id="fbUp">إنشاء حساب</button> <button class="btn alt" id="fbReset">نسيت كلمة السر</button></div>
+  <button class="btn alt" id="fbOutBtn" hidden>تسجيل خروج</button> <button class="btn alt" id="fbCfgClear" hidden>تغيير الإعدادات</button></div>
  <div class="card"><b>نسخ السيرفر اليومية (آخر 7 أيام)</b><div id="svBk"></div></div>
  <div class="card"><b>تعديل القايمة بالنسخ واللصق</b>
   <p style="color:var(--mute);font-size:.85rem;margin:4px 0">اعرض القايمة وانسخها، عدّلها في أي تطبيق (ملاحظات أو إكسل)، والصقها هنا وطبّق. السطر اللي ملوش كود بيتضاف كطالب جديد. ولو كتبت اسم بس، بيتضاف في المجموعة المختارة. مفيش طالب بيتحذف من هنا.</p>
@@ -279,6 +285,7 @@ details.adv>summary{cursor:pointer;font-weight:700;padding:12px;background:var(-
 <div id="tabCfg" hidden><div class="card" style="max-width:420px;width:100%;margin:0;max-height:85vh;overflow:auto"><b>الأقسام اللي عايز تشوفها</b><p style="color:var(--mute);font-size:.85rem;margin:4px 0">شيل العلامة عشان تخفي القسم من الشاشة. الإخفاء مش بيمسح أي بيانات.</p><div id="tabCfgList"></div><div style="margin-top:10px"><button class="btn alt" id="tcSimple">وضع بسيط</button> <button class="btn alt" id="tcFull">إظهار الكل</button> <button class="btn" id="tcClose">تم</button></div></div></div>
 <div id="lock" hidden><div class="card" style="max-width:340px;width:100%;margin:0;text-align:center"><b>🔒 الصفحة مقفولة</b><input id="lockIn" type="password" inputmode="numeric" placeholder="الرمز السري" style="margin:10px 0;text-align:center"><button class="btn" id="lockGo">فتح</button></div></div>
 <div class="toast" id="toast"></div>
+<script src="firebase-config.js"></script>
 <div class="toast" id="undoBar" style="bottom:calc(64px + env(safe-area-inset-bottom,0px))"><span id="undoTx"></span> <button class="btn" id="undoBtn" style="margin:0 8px;padding:4px 14px">تراجع</button></div>
 
 <script>
@@ -514,12 +521,46 @@ async function persist(){if(!cloud)return;if(navigator.onLine===false){offMsg();
   else{for(const k of del){await withTO(cloud.doc(k).delete(),20000);delete written[k]}pendingDel=0;if(rev===r0){try{localStorage.removeItem(KEY+"_dirty")}catch(e){}}setCloud(okMsg())}}
  catch(e){if(navigator.onLine===false||(e&&e.code==="timeout"))offMsg();else setCloud("⚠ تعذر الحفظ على السيرفر ("+(e&&e.code||"خطأ")+"). بياناتك محفوظة على التلفون وهنعيد المحاولة.","bad")}
  busy=false;if(again){again=false;persist()}}
-$("#cloudSt").onclick=async()=>{if(!pendingDel)return;if(await ask("هيتم حذف "+pendingDel+" طالب من السيرفر نهائيًا. متأكد؟")===null)return;forceDel=true;await persist();forceDel=false};
+$("#cloudSt").onclick=async()=>{if(!pendingDel){if(!cloud&&typeof claude==="undefined"){showTab("students");const d=$("details.adv");if(d)d.open=true;$("#fbCard").scrollIntoView({behavior:"smooth"})}return}if(await ask("هيتم حذف "+pendingDel+" طالب من السيرفر نهائيًا. متأكد؟")===null)return;forceDel=true;await persist();forceDel=false};
+/* ---------- Firebase ---------- */
+const FBV="10.14.1",FB_KEY="ali_fb_cfg";let fbAuth=null,fbUser=null,fbReady=null;
+function fbCfg(){const w=window.FIREBASE_CONFIG;if(w&&w.apiKey)return w;try{const x=JSON.parse(localStorage.getItem(FB_KEY)||"null");if(x&&x.apiKey)return x}catch(e){}return null}
+function parseFbCfg(t){const o={};String(t).replace(/["']?(\w+)["']?\s*:\s*["']([^"']+)["']/g,(_,k,v)=>{o[k]=v});return o.apiKey&&o.projectId?o:null}
+const loadJs=src=>new Promise((ok,no)=>{const s=document.createElement("script");s.src=src;s.onload=ok;s.onerror=()=>{s.remove();no({code:"sdk-load"})};document.head.appendChild(s)});
+function fbInit(){if(fbReady)return fbReady;const cfg=fbCfg();if(!cfg)return Promise.resolve(null);
+ fbReady=(async()=>{const b="https://www.gstatic.com/firebasejs/"+FBV+"/";
+  if(!window.firebase)await loadJs(b+"firebase-app-compat.js");
+  if(!firebase.auth)await loadJs(b+"firebase-auth-compat.js");
+  if(!firebase.firestore)await loadJs(b+"firebase-firestore-compat.js");
+  if(!firebase.apps.length)firebase.initializeApp(cfg);
+  fbAuth=firebase.auth();let first=true;
+  await new Promise(res=>fbAuth.onAuthStateChanged(u=>{const prev=fbUser&&fbUser.uid;fbUser=u;renderFb();
+   if(first){first=false;res();return}
+   if(u&&u.uid!==prev)initCloud();
+   else if(!u&&prev){cloud=null;written={};try{localStorage.removeItem(KEY+"_synced")}catch(e){}setCloud("☁ سجّل دخول عشان تتزامن بياناتك","bad")}}));
+  return firebase})().catch(e=>{fbReady=null;throw e});
+ return fbReady}
+function fbDb(uid){const fs=firebase.firestore(),b="users/"+uid+"/";return{doc:p=>fs.doc(b+p),collection:p=>fs.collection(b+p)}}
+function renderFb(){const cfg=fbCfg(),fixed=!!(window.FIREBASE_CONFIG&&window.FIREBASE_CONFIG.apiKey);
+ $("#fbCfgBox").hidden=!!cfg;$("#fbCfgClear").hidden=!cfg||fixed||!!fbUser;$("#fbLogin").hidden=!cfg||!!fbUser;$("#fbOutBtn").hidden=!fbUser;
+ $("#fbSt").textContent=!cfg?"مش متفعّلة: البيانات على التلفون بس. اعمل مشروع Firebase مجاني والصق إعداداته هنا (الخطوات في README).":fbUser?"✓ داخل بحساب "+fbUser.email+" · بياناتك بتتزامن بين كل أجهزتك":"سجّل دخول بنفس الحساب على كل أجهزتك. أول مرة: اكتب إيميل وكلمة سر ودوس «إنشاء حساب»."}
+const fbErr=e=>({"auth/invalid-credential":"الإيميل أو كلمة السر غلط","auth/invalid-login-credentials":"الإيميل أو كلمة السر غلط","auth/wrong-password":"كلمة السر غلط","auth/user-not-found":"مفيش حساب بالإيميل ده","auth/email-already-in-use":"الإيميل ده عليه حساب، دوس «دخول»","auth/weak-password":"كلمة السر لازم 6 حروف أو أكتر","auth/invalid-email":"الإيميل مش صحيح","auth/missing-password":"اكتب كلمة السر","auth/network-request-failed":"مفيش نت","auth/too-many-requests":"محاولات كتير، استنى شوية","auth/operation-not-allowed":"فعّل Email/Password في Firebase Console","auth/invalid-api-key":"apiKey غلط، راجع الإعدادات","sdk-load":"تعذر تحميل Firebase، اتأكد من النت","timeout":"النت بطيء، جرّب تاني"}[e&&e.code]||"حصل خطأ ("+(e&&e.code||e)+")");
+async function fbAct(fn){try{await withTO(fbInit(),20000);if(!fbAuth)throw{code:"sdk-load"};await fn()}catch(e){toast(fbErr(e))}}
+const fbCred=()=>[$("#fbEmail").value.trim(),$("#fbPass").value];
+$("#fbCfgSave").onclick=()=>{const c=parseFbCfg($("#fbCfgIn").value);if(!c)return toast("الإعدادات ناقصة: لازم apiKey و projectId");try{localStorage.setItem(FB_KEY,JSON.stringify(c))}catch(e){}renderFb();toast("اتحفظت الإعدادات. سجّل دخول دلوقتي");fbInit().catch(e=>toast(fbErr(e)))};
+$("#fbCfgClear").onclick=async()=>{if(await ask("تغيير إعدادات Firebase؟ الصفحة هتتعمل لها ريفريش.")===null)return;try{localStorage.removeItem(FB_KEY)}catch(e){}location.reload()};
+$("#fbIn").onclick=()=>fbAct(async()=>{const[e,p]=fbCred();await fbAuth.signInWithEmailAndPassword(e,p);$("#fbPass").value="";toast("أهلًا! جاري المزامنة…")});
+$("#fbUp").onclick=()=>fbAct(async()=>{const[e,p]=fbCred();await fbAuth.createUserWithEmailAndPassword(e,p);$("#fbPass").value="";toast("اتعمل الحساب، جاري رفع بياناتك…")});
+$("#fbReset").onclick=()=>fbAct(async()=>{const[e]=fbCred();if(!e)return toast("اكتب الإيميل الأول");await fbAuth.sendPasswordResetEmail(e);toast("اتبعت رابط تغيير كلمة السر على الإيميل")});
+$("#fbOutBtn").onclick=async()=>{if(await ask("تسجيل خروج؟ بياناتك هتفضل على التلفون بس مش هتتزامن.")===null)return;fbAct(()=>fbAuth.signOut())};
+renderFb();
 async function initCloud(){if(initing)return;initing=true;try{await initCloud0()}finally{initing=false}}
 async function initCloud0(){
- try{if(typeof claude==="undefined"){setCloud("البيانات على التلفون بس");return}
+ try{let c=null;
+  if(typeof claude==="undefined"&&!fbCfg()){setCloud("📱 البيانات على التلفون بس · دوس هنا لتفعيل المزامنة");return}
   if(navigator.onLine===false){offMsg();return}
-  const c=await withTO(claude.use("db"),12000);if(!c){setCloud("البيانات على التلفون بس (السيرفر غير متاح)");return}
+  if(typeof claude!=="undefined")c=await withTO(claude.use("db"),12000);
+  else{await withTO(fbInit(),20000);if(!fbUser){setCloud("☁ سجّل دخول عشان تتزامن بياناتك · دوس هنا","bad");return}c=fbDb(fbUser.uid)}if(!c){setCloud("البيانات على التلفون بس (السيرفر غير متاح)");return}
   setCloud("جاري الاتصال بالسيرفر…");
   const snap=await withTO(c.collection("students").limit(1000).get(),15000),cfg=await withTO(c.doc("app/config").get(),15000);
   bkLocal();
