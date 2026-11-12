@@ -1,5 +1,5 @@
 // يشتغل من غير نت: الصفحة بتتجاب من النت لو متاح (عشان التحديثات) وإلا من الكاش
-const CACHE = 'ali-grades-v4';
+const CACHE = 'ali-grades-v5';
 const ASSETS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', (e) => {

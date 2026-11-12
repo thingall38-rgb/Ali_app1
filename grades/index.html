@@ -61,6 +61,19 @@ input,select,textarea{width:100%;padding:10px;border:1px solid var(--line);borde
 .gt{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);align-items:flex-start}.gt .n{min-width:24px;color:var(--mute);font-weight:700}.gt .m{flex:1}.gt .a{text-align:center;min-width:70px}.gt .a b{display:block;font-size:1.05rem}
 .cfgi{display:flex;gap:8px;align-items:center;margin:7px 0;color:#e8eefc;font-size:.88rem}.cfgi input{width:auto}
 .dm{color:#8fa6d6;margin:6px 0;font-size:.85rem}
+body.wide .wrap{max-width:1280px}
+.dhead{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding-bottom:10px;border-bottom:1px solid #1f3a78}
+.dhead .ti{display:flex;align-items:center;gap:10px}.dico{width:40px;height:40px;border-radius:12px;background:#2563eb;display:grid;place-items:center;font-size:1.2rem;flex:none}
+.dchip{display:flex;gap:6px;flex-wrap:wrap}.dchip button{background:#1d4ed8;color:#fff;border:1px solid #3b82f6;border-radius:12px;padding:7px 14px;font:700 .85rem Cairo,Tahoma,sans-serif;cursor:pointer}.dchip button.g{background:#12285c;border-color:#27407f}
+.dflt{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;align-items:end;margin-top:10px;background:#0c1d47;border:1px solid #1f3a78;border-radius:14px;padding:10px}
+.dflt .fl{color:#60a5fa;font-weight:800;font-size:.88rem;align-self:center}.dflt label{margin-top:0}
+.dk{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))!important}
+.dk>div{position:relative;padding-inline-start:60px!important;min-height:86px}.dk>div em{position:absolute;inset-inline-start:12px;top:50%;transform:translateY(-50%);width:38px;height:38px;border-radius:11px;display:grid;place-items:center;font-style:normal;font-size:1.1rem;background:#1e40af}
+.dsec{display:flex;align-items:center;gap:8px;margin:16px 0 0;font-weight:800;font-size:1rem}.dsec i{width:10px;height:10px;border-radius:50%;background:#3b82f6;box-shadow:0 0 0 4px #1e3a8a}
+#dbCharts{display:grid;grid-template-columns:1fr;gap:0 12px}
+@media (min-width:900px){#dbCharts{grid-template-columns:1fr 1fr}.dk>div b{font-size:1.7rem}}
+@media (min-width:1150px){.dk{grid-template-columns:repeat(6,1fr)!important}}
+.dash:fullscreen{overflow:auto;border-radius:0;padding:20px}
 .dash svg text{fill:#c9d7f5!important}.dash svg line{stroke:#27407f!important}.dash svg polyline{stroke:#60a5fa!important}.dash svg circle[r="3.5"]{fill:#60a5fa!important}
 #tabCfg{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;padding:16px;z-index:25}#tabCfg[hidden]{display:none}
 details.adv>summary{cursor:pointer;font-weight:700;padding:12px;background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:12px}
@@ -226,13 +239,18 @@ details.adv>summary{cursor:pointer;font-weight:700;padding:12px;background:var(-
 </section>
 
 <section id="dashb" hidden>
- <div class="dash">
-  <h3>لوحة تحكم الدروس</h3><div class="sub">12 رسم بياني تفاعلي · اضغط على أي مجموعة عشان تفلتر بيها، واضغط على أي عمود لتشوف رقمه</div>
-  <div class="row" style="margin-top:10px"><div><label>المجموعة</label><select id="dbGroup"></select></div><div><label>الشهر</label><input type="month" id="dbMonth"></div></div>
-  <label>الفترة</label><select id="dbPer"><option value="month">الشهر المختار</option><option value="all">كل الفترة</option></select>
-  <button class="btn alt" id="dbCfgBtn" style="margin:10px 0 0">⚙ إظهار وإخفاء الكروت والرسوم</button>
+ <div class="dash" id="dashBox">
+  <div class="dhead"><div class="ti"><div class="dico">📊</div><div><h3 id="dbTitle">نظام متابعة الطلاب والدروس</h3><div class="sub" id="dbSub">لوحة تحكم ذكية مع 12 رسمًا بيانيًا تفاعليًا</div></div></div>
+   <div class="dchip"><button id="dbCfgBtn" class="g">⚙ تخصيص</button><button id="dbFull" class="g">⛶ ملء الشاشة</button><button id="dbAllBtn">🏠 نظرة عامة (12 رسمًا)</button></div></div>
+  <div class="dflt"><div class="fl">⏷ فلاتر متقدمة:</div>
+   <div><label>المجموعة</label><select id="dbGroup"></select></div>
+   <div><label>الشهر</label><input type="month" id="dbMonth"></div>
+   <div><label>الفترة</label><select id="dbPer"><option value="month">الشهر المختار</option><option value="all">كل الفترة</option></select></div>
+   <div><label>الطالب</label><select id="dbStu"></select></div></div>
   <div id="dbCfg" class="dc" hidden></div>
   <div class="dk" id="dbK"></div>
+  <div class="dsec"><i></i><span id="dbSec">لوحة التحليلات والرسوم البيانية التفاعلية (12 رسمًا بيانيًا)</span></div>
+  <div class="sub" style="margin-top:4px">اضغط على أي مجموعة عشان تفلتر بيها، واضغط على أي عمود أو جزء لتشوف رقمه</div>
   <div id="dbCharts"></div>
  </div>
 </section>
@@ -733,21 +751,27 @@ function donut(items,flt){const it=items.filter(x=>x.v>0),tot=it.reduce((a,x)=>a
  return`<svg viewBox="0 0 180 180" style="width:100%;max-width:220px;display:block;margin:0 auto">${body}<text x="${c}" y="${c+7}" text-anchor="middle" font-size="22" font-weight="bold">${tot}</text></svg><div class="dleg">${it.map((x,i)=>`<span><i style="background:${x.c||PAL[i%8]}"></i>${esc(x.l)} · ${x.v}</span>`).join("")}</div>`}
 function hb(items,fmt,max,flt,col){items=items.filter(x=>x.v!=null);if(!items.length)return'<p class="dm">مفيش بيانات كفاية.</p>';const mx=max||Math.max(...items.map(x=>x.v),1);
  return items.map((x,i)=>`<div class="hb" data-tip="${esc(x.l)}: ${fmt(x.v)}"${flt?` data-flt="${esc(x.l)}"`:""}><span>${esc(x.l)}</span><div class="tr"><i style="width:${Math.min(x.v/mx*100,100)}%;background:${col||PAL[i%8]}"></i></div><b>${fmt(x.v)}</b></div>`).join("")}
-function cols(labels,series){const W=320,H=150,T=16,B=24,n=labels.length,mx=Math.max(1,...series.flatMap(s=>s.v.map(v=>v||0))),bw=(W-10)/n,sw=Math.min(bw*.72/series.length,24);
+function cols(labels,series){const W=320,H=160,T=16,B=24,AX=34,n=labels.length,mx=Math.max(1,...series.flatMap(s=>s.v.map(v=>v||0))),bw=(W-10-AX)/n,sw=Math.min(bw*.72/series.length,24),f0=series[0].f;
  let o=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;display:block">`;
+ for(let q=0;q<=4;q++){const y=H-B-(H-T-B)*q/4;o+=`<line x1="${AX}" x2="${W-4}" y1="${y}" y2="${y}" stroke-width="${q?.5:1}"/><text x="${AX-4}" y="${y+3}" text-anchor="end" direction="ltr" font-size="8">${f0(mx*q/4)}</text>`}
  labels.forEach((lb,i)=>{const cx=W-5-bw*(i+.5);o+=`<text x="${cx}" y="${H-8}" text-anchor="middle" font-size="9">${esc(lb)}</text>`;
   series.forEach((s,j)=>{const v=s.v[i]||0,h=(H-T-B)*v/mx,x=cx-sw*series.length/2+j*sw;o+=`<rect x="${x}" y="${H-B-h}" width="${sw-2}" height="${Math.max(h,0)}" rx="3" fill="${s.c}" style="cursor:pointer" data-tip="${esc(lb)} · ${esc(s.n)}: ${s.f(v)}"/>`;if(v)o+=`<text x="${x+(sw-2)/2}" y="${H-B-h-4}" text-anchor="middle" font-size="8">${s.f(v)}</text>`})});
  return o+"</svg>"+(series.length>1?`<div class="dleg">${series.map(s=>`<span><i style="background:${s.c}"></i>${esc(s.n)}</span>`).join("")}</div>`:"")}
 function renderDash(){if($("#dashb").hidden)return;const m=$("#dbMonth").value;if(!m)return;
  const g=$("#dbGroup").value,per=$("#dbPer").value,inP=x=>per==="all"||x.slice(0,7)===m,HID=new Set((db.me&&db.me.dh)||[]);
- const L=db.students.filter(s=>!g||inG(s,g)),ids=new Set(L.map(s=>s.id)),sm=new Map(L.map(s=>[s.id,s]));
+ const stv=$("#dbStu").value,G0=db.students.filter(s=>!g||inG(s,g));
+ {const o=$("#dbStu"),cur=G0.some(s=>s.id===stv)?stv:"";o.innerHTML=`<option value="">جميع الطلاب (${G0.length})</option>`+G0.map(s=>`<option value="${esc(s.id)}">${esc(s.name)}</option>`).join("");o.value=cur}
+ const sv=$("#dbStu").value,L=G0.filter(s=>!sv||s.id===sv);
+ {const[y,mo]=m.split("-").map(Number),a=mo>=8?y:y-1;$("#dbTitle").textContent=`نظام متابعة الطلاب والدروس (${a} - ${a+1})`;$("#dbSub").textContent=`لوحة تحكم ذكية لـ ${db.students.length} طالب في ${groups().length} مجموعة مع 12 رسمًا بيانيًا تفاعليًا`}
+ const ids=new Set(L.map(s=>s.id)),sm=new Map(L.map(s=>[s.id,s]));
  const gr=db.grades.filter(x=>ids.has(x.sid)&&inP(x.date)),at=db.att.filter(x=>ids.has(x.sid)&&inP(x.date));
  const months=per==="all"?[...new Set(db.pay.filter(p=>ids.has(p.sid)).map(p=>p.month))]:[m],paid=new Set();
  db.pay.forEach(p=>{if(ids.has(p.sid)&&months.includes(p.month))paid.add(p.sid+"|"+p.month)});
  const incOf=set=>{let a=0;paid.forEach(k=>{const s=sm.get(k.split("|")[0]);if(s&&set.has(s.id))a+=s.fee||0});return a};
  const income=incOf(ids),expT=db.exp.filter(x=>per==="all"||x.month===m).reduce((a,x)=>a+x.amount,0),net=income-expT;
  const attR=a=>a.length?a.filter(x=>x.s==="ح").length/a.length:null,absN=at.filter(x=>x.s==="غ").length,unpaid=L.filter(s=>!isPaid(s.id,m)).length;
- const k=(l,v,s,c)=>`<div><span>${l}</span><b style="${c?"color:"+c:""}">${v}</b><span>${s||""}</span></div>`;
+ const IC=["💰","📈","📝","✅","👥","⚠"],IB=["#1e40af","#166534","#6d28d9","#0e7490","#9d174d","#9a3412"];let ki=0;
+ const k=(l,v,s,c)=>{const i=ki++;return`<div><em style="background:${IB[i]}">${IC[i]}</em><span>${l}</span><b style="${c?"color:"+c:""}">${v}</b><span>${s||""}</span></div>`};
  const KP=[k("المتحصّل (جنيه)",fnum(income),"المصاريف "+fnum(expT)),k("صافي الربح",fnum(net),"",net<0?"#ff8a80":"#4ade80"),k("متوسط الدرجات",pct(avgOf(gr)),gr.length+" درجة مسجلة"),k("نسبة الحضور",pct(attR(at)),absN+" غياب"),k("عدد الطلاب",L.length,groups().filter(n=>!g||n===g).length+" مجموعة"),k("لم يدفعوا (شهر "+m.slice(5)+")",unpaid,"من "+L.length,unpaid?"#ff8a80":"#4ade80")];
  $("#dbK").innerHTML=KP.filter((_,i)=>!HID.has("k"+i)).join("");
  const gs=groups().filter(n=>!g||n===g),rows=gs.map(n=>{const st=L.filter(s=>inG(s,n)),sid=new Set(st.map(s=>s.id)),sp=new Set(st.filter(s=>s.group===n).map(s=>s.id));return{n,cnt:st.length,inc:incOf(sp),avg:avgOf(gr.filter(x=>sid.has(x.sid))),att:attR(at.filter(x=>sid.has(x.sid)))}});
@@ -760,6 +784,7 @@ function renderDash(){if($("#dashb").hidden)return;const m=$("#dbMonth").value;i
  const pc=v=>Math.round(v*100)+"%",box=(i,tt,h)=>HID.has("c"+i)?"":`<div class="dc"><h4>${i}. ${tt}</h4>${h}</div>`;
  const mavg=ms.map(q=>({k:q,p:avgOf(db.grades.filter(x=>ids.has(x.sid)&&x.date.slice(0,7)===q))})).filter(x=>x.p!=null);
  const mi=ms.map(q=>incomeOf([...ids],q)),me=ms.map(q=>db.exp.filter(x=>x.month===q).reduce((a,x)=>a+x.amount,0));
+ const nShow=12-[...HID].filter(x=>x[0]==="c").length;$("#dbSec").textContent=`لوحة التحليلات والرسوم البيانية التفاعلية (${nShow} رسمًا بيانيًا)`;
  $("#dbCharts").innerHTML=
   box(1,"توزيع الطلاب على المجموعات",donut(rows.map(r=>({l:r.n,v:r.cnt})),true))
  +box(2,"المتحصّل حسب المجموعة (جنيه)",hb(rows.map(r=>({l:r.n,v:r.inc})),fnum,0,true))
@@ -777,7 +802,9 @@ function renderDash(){if($("#dashb").hidden)return;const m=$("#dbMonth").value;i
 $("#dashb").onclick=e=>{const el=e.target.closest("[data-flt],[data-tip]");if(!el)return;
  if(el.dataset.tip)toast(el.dataset.tip);
  if(el.dataset.flt){const f=$("#dbGroup");f.value=f.value===el.dataset.flt?"":el.dataset.flt;renderDash()}};
-["#dbGroup","#dbMonth","#dbPer"].forEach(s=>$(s).onchange=renderDash);
+["#dbGroup","#dbMonth","#dbPer","#dbStu"].forEach(s=>$(s).onchange=renderDash);
+$("#dbAllBtn").onclick=()=>{$("#dbGroup").value="";$("#dbStu").value="";$("#dbPer").value="month";renderDash()};
+$("#dbFull").onclick=()=>{const b=$("#dashBox");try{document.fullscreenElement?document.exitFullscreen():b.requestFullscreen()}catch(e){toast("المتصفح مش بيدعم ملء الشاشة")}};
 const KN=["المتحصّل","صافي الربح","متوسط الدرجات","نسبة الحضور","عدد الطلاب","لم يدفعوا"],CN=["توزيع الطلاب على المجموعات","المتحصّل حسب المجموعة","متوسط الدرجات حسب المجموعة","نسبة الحضور حسب المجموعة","تطور متوسط الدرجات","المتحصّل مقابل المصاريف","مستوى الطلاب","حالة الدفع","الحضور حسب يوم الأسبوع","الدرجات حسب نوع الاختبار","مصادر الطلاب","أضعف الأبواب"];
 function renderCfg(){const H=new Set(db.me.dh||[]),it=(id,tx)=>`<label class="cfgi"><input type="checkbox" data-dh="${id}" ${H.has(id)?"":"checked"}> ${tx}</label>`;
  $("#dbCfg").innerHTML='<h4>الكروت</h4>'+KN.map((x,i)=>it("k"+i,x)).join("")+'<h4 style="margin-top:10px">الرسوم</h4>'+CN.map((x,i)=>it("c"+(i+1),(i+1)+". "+x)).join("")+'<div style="margin-top:10px"><button class="btn alt" data-dhall="1">إظهار الكل</button> <button class="btn alt" data-dhnone="1">إخفاء الكل</button></div>'}
@@ -897,7 +924,7 @@ const LB={home:"عمل اليوم",att:"الحضور",grades:"الدرجات",da
 const MAINN={today:"اليوم",students:"الطلاب",pay:"الفلوس",rep:"التقارير"},ORDER=["home","att","grades","day","students","gtab","cur","pay","dashb","report","stars","tchr"];
 const vis=k=>!((db.me&&db.me.ht)||[]).includes(k),firstVis=()=>ORDER.find(vis)||"home";let curTabId="home";
 function showTab(x){curTabId=x;const g=Object.keys(GR).find(k=>GR[k].includes(x));
- ["home","grades","att","day","students","pay","cur","report","stars","tchr","dashb","gtab"].forEach(id=>$("#"+id).hidden=id!==x);
+ ["home","grades","att","day","students","pay","cur","report","stars","tchr","dashb","gtab"].forEach(id=>$("#"+id).hidden=id!==x);document.body.classList.toggle("wide",x==="dashb");
  document.querySelectorAll("#nav button").forEach(b=>{b.classList.toggle("on",b.dataset.g===g);b.hidden=b.dataset.g!==g&&!GR[b.dataset.g].some(vis)});
  $("#subnav").innerHTML=GR[g].filter(s=>vis(s)||s===x).length>1?GR[g].filter(s=>vis(s)||s===x).map(s=>`<button data-s="${s}" class="${s===x?"on":""}">${LB[s]}</button>`).join(""):"";
  renderTab(x)}
