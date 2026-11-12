@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>المساعد الذكي · م. علي فرج</title>
+<meta name="theme-color" content="#132038">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="مساعد علي فرج">
+<link rel="apple-touch-icon" href="../icon-192.png">
+<link rel="icon" href="../icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;900&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#132038; --navy-2:#1c2f52; --paper:#f4f2ec; --card:#ffffff;
+    --brass:#c9973b; --brass-dim:#e8c988; --ink:#1c2230; --muted:#6b7280;
+    --good:#3a7d5c; --bad:#b54a3f; --line:#e4e0d4;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0; padding:0;}
+  body{background:var(--paper); color:var(--ink); font-family:'IBM Plex Sans Arabic',sans-serif;
+    min-height:100dvh; display:flex; flex-direction:column;}
+  h1,h2,h3,.brand{font-family:'Tajawal',sans-serif;}
+  button{font-family:inherit; cursor:pointer;}
+
+  header{background:linear-gradient(160deg,var(--navy) 0%,var(--navy-2) 100%); color:#fff;
+    padding:calc(14px + env(safe-area-inset-top)) 16px 14px; position:sticky; top:0; z-index:5;}
+  .top{display:flex; align-items:center; gap:10px;}
+  .top a{color:var(--brass-dim); text-decoration:none; font-size:20px; line-height:1; padding:4px;}
+  .brand{flex:1; font-size:18px; font-weight:900;}
+  .brand small{display:block; font-family:'IBM Plex Sans Arabic'; font-weight:400; font-size:11.5px; color:var(--brass-dim);}
+  .hbtn{background:rgba(201,151,59,.18); border:1px solid rgba(201,151,59,.5); color:var(--brass-dim);
+    font-size:12px; padding:6px 11px; border-radius:20px;}
+  .subjects{display:flex; gap:6px; margin-top:12px;}
+  .subjects button{flex:1; background:transparent; color:#fff; border:1px solid rgba(255,255,255,.25);
+    border-radius:10px; padding:7px 4px; font-size:13px;}
+  .subjects button.on{background:var(--brass); border-color:var(--brass); color:var(--navy); font-weight:700;}
+
+  main{flex:1; width:100%; max-width:760px; margin:0 auto; padding:16px 16px 8px;}
+  .hello{text-align:center; color:var(--muted); font-size:13.5px; margin:6px 0 14px;}
+  .hello b{display:block; color:var(--ink); font-family:'Tajawal'; font-size:19px; margin-bottom:4px;}
+  .quick{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px;}
+  .quick button{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:12px;
+    text-align:right; color:var(--ink); font-size:13px; line-height:1.5;}
+  .quick button span{display:block; font-size:20px; margin-bottom:2px;}
+  .quick button b{display:block; font-size:14px;}
+  .quick button:active{border-color:var(--brass);}
+
+  .msg{margin:0 0 12px; display:flex; flex-direction:column;}
+  .msg.user{align-items:flex-start;}
+  .msg.bot{align-items:flex-end;}
+  .bubble{max-width:92%; padding:11px 14px; border-radius:16px; font-size:15px; line-height:1.75;
+    overflow-wrap:anywhere; -webkit-user-select:text; user-select:text;}
+  .user .bubble{background:var(--navy); color:#fff; border-bottom-right-radius:4px; white-space:pre-wrap;}
+  .bot .bubble{background:var(--card); border:1px solid var(--line); border-bottom-left-radius:4px;}
+  .bubble img{display:block; max-width:100%; max-height:220px; border-radius:10px; margin-bottom:8px;}
+  .bot .bubble h3{font-size:16px; margin:10px 0 4px; color:var(--navy);}
+  .bot .bubble h3:first-child{margin-top:0;}
+  .bot .bubble p{margin:0 0 8px;}
+  .bot .bubble p:last-child{margin-bottom:0;}
+  .bot .bubble ul,.bot .bubble ol{margin:0 0 8px; padding-inline-start:20px;}
+  .bot .bubble code{background:#f1eee4; border-radius:5px; padding:1px 5px; direction:ltr; unicode-bidi:isolate;
+    font-family:ui-monospace,monospace; font-size:13.5px;}
+  .bot .bubble pre{background:#f1eee4; border-radius:8px; padding:8px 10px; overflow-x:auto; direction:ltr; text-align:left;}
+  .bot .bubble table{border-collapse:collapse; display:block; overflow-x:auto; margin:0 0 8px; font-size:13.5px;}
+  .bot .bubble td,.bot .bubble th{border:1px solid var(--line); padding:4px 8px;}
+  .bot .bubble.err{background:#fbeeec; border-color:#efc9c3; color:var(--bad);}
+  .tools{display:flex; gap:6px; margin-top:5px;}
+  .tools button{background:transparent; border:1px solid var(--line); border-radius:8px; color:var(--muted);
+    font-size:12px; padding:4px 9px;}
+  .dots{display:inline-flex; gap:4px;}
+  .dots i{width:7px; height:7px; border-radius:50%; background:var(--brass); animation:b 1s infinite ease-in-out;}
+  .dots i:nth-child(2){animation-delay:.15s} .dots i:nth-child(3){animation-delay:.3s}
+  @keyframes b{0%,80%,100%{opacity:.25; transform:translateY(0)} 40%{opacity:1; transform:translateY(-3px)}}
+
+  .composer{position:sticky; bottom:0; background:var(--paper); border-top:1px solid var(--line);
+    padding:10px 16px calc(10px + env(safe-area-inset-bottom));}
+  .composer .in{max-width:760px; margin:0 auto;}
+  .preview{display:none; align-items:center; gap:8px; margin-bottom:8px; font-size:12.5px; color:var(--muted);}
+  .preview img{width:48px; height:48px; object-fit:cover; border-radius:8px; border:1px solid var(--line);}
+  .preview button{background:none; border:none; color:var(--bad); font-size:13px;}
+  .row{display:flex; gap:8px; align-items:flex-end;}
+  textarea{flex:1; min-width:0; resize:none; border:1px solid var(--line); border-radius:14px; background:var(--card);
+    padding:11px 12px; font:inherit; font-size:15px; line-height:1.5; max-height:160px; color:var(--ink);}
+  textarea:focus,input:focus{outline:2px solid var(--brass-dim); outline-offset:0;}
+  .ibtn{width:44px; height:44px; flex:none; border-radius:12px; border:1px solid var(--line); background:var(--card);
+    font-size:19px; color:var(--navy);}
+  .send{background:var(--navy); color:#fff; border-color:var(--navy);}
+  .send.stop{background:var(--bad); border-color:var(--bad);}
+  .send:disabled{opacity:.45;}
+
+  .login{max-width:380px; margin:20px auto; background:var(--card); border:1px solid var(--line); border-radius:16px; padding:18px;}
+  .login h2{margin:0 0 6px; font-size:18px;}
+  .login p{margin:0 0 14px; color:var(--muted); font-size:13px; line-height:1.6;}
+  .login input{width:100%; border:1px solid var(--line); border-radius:10px; padding:11px; font:inherit; font-size:15px; margin-bottom:10px; direction:ltr; text-align:left;}
+  .login button{width:100%; background:var(--navy); color:#fff; border:none; border-radius:10px; padding:12px; font-size:15px; font-weight:600;}
+  .login .msgline{color:var(--bad); font-size:13px; min-height:18px; margin-top:8px;}
+  .hidden{display:none !important;}
+  .toast{position:fixed; left:50%; bottom:96px; transform:translateX(-50%); background:var(--navy); color:#fff;
+    padding:8px 14px; border-radius:20px; font-size:13px; opacity:0; transition:opacity .2s; pointer-events:none; z-index:9;}
+  .toast.on{opacity:1;}
+  @media (max-width:360px){ .quick{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="top">
+    <a href="../" aria-label="رجوع للوحة">→</a>
+    <div class="brand">المساعد الذكي <small>شرح · حل مسائل · بنوك أسئلة · محتوى</small></div>
+    <button class="hbtn" id="newChat">＋ محادثة جديدة</button>
+  </div>
+  <div class="subjects" id="subjects">
+    <button data-s="physics">⚛ فيزياء</button>
+    <button data-s="chemistry">⚗ كيمياء</button>
+    <button data-s="general">الاتنين</button>
+  </div>
+</header>
+
+<main>
+  <section id="loginBox" class="login hidden">
+    <h2>سجّل دخول الأول</h2>
+    <p>بنفس الإيميل وكلمة السر بتوع المزامنة في تطبيق الدرجات. المساعد مقفول على حسابك عشان محدش يستهلك الرصيد.</p>
+    <input id="email" type="email" autocomplete="username" placeholder="email@example.com">
+    <input id="pass" type="password" autocomplete="current-password" placeholder="كلمة السر">
+    <button id="loginBtn">دخول</button>
+    <div class="msgline" id="loginMsg"></div>
+  </section>
+
+  <section id="welcome">
+    <div class="hello"><b>أهلاً يا بشمهندس علي 👋</b>اختار حاجة جاهزة أو اكتب طلبك، وتقدر تصوّر مسألة من كتاب أو ورقة.</div>
+    <div class="quick" id="quick"></div>
+  </section>
+
+  <section id="chat"></section>
+</main>
+
+<div class="composer" id="composer">
+  <div class="in">
+    <div class="preview" id="preview"><img id="previewImg" alt=""><span>صورة مرفقة</span><button id="dropImg">✕ شيلها</button></div>
+    <div class="row">
+      <button class="ibtn" id="attach" title="إرفاق صورة مسألة" aria-label="إرفاق صورة">📷</button>
+      <input type="file" id="file" accept="image/*" class="hidden">
+      <textarea id="input" rows="1" placeholder="اكتب سؤالك أو طلبك…"></textarea>
+      <button class="ibtn send" id="send" aria-label="إرسال">➤</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const $ = s => document.querySelector(s);
+const LS = {
+  get(k){ try{ return localStorage.getItem(k) }catch(e){ return null } },
+  set(k,v){ try{ localStorage.setItem(k,v) }catch(e){} },
+  del(k){ try{ localStorage.removeItem(k) }catch(e){} },
+};
+// بنقرا توكن تطبيق الدرجات لو موجود (نفس الحساب)، وإلا توكن خاص بالمساعد
+const TK = "ali_ai_tok", GTK = "ali_grades_v1_tok", HK = "ali_ai_history", SK = "ali_ai_subject";
+let token = LS.get(TK) || LS.get(GTK);
+let subject = LS.get(SK) || "physics";
+let history = [];
+try{ history = JSON.parse(LS.get(HK) || "[]") }catch(e){ history = [] }
+let image = null, busy = false, ctrl = null;
+
+const QUICK = [
+  { ic:"📘", t:"اشرح درس", d:"شرح مبسط بأمثلة", p:"اشرحلي درس: \nبشكل مبسط لطالب ثانوية عامة، مع مثال من الحياة اليومية، وأهم القوانين، والأخطاء الشائعة عند الطلاب." },
+  { ic:"🧮", t:"حل مسألة", d:"خطوة بخطوة", p:"حل المسألة دي خطوة بخطوة (المعطيات، القانون، التعويض، الناتج):\n" },
+  { ic:"📝", t:"بنك أسئلة", d:"اختيار من متعدد", p:"اعمل 10 أسئلة اختيار من متعدد على درس: \nبمستويات صعوبة متدرجة (سهل، متوسط، صعب) زي امتحانات الثانوية العامة، مع الإجابة الصحيحة وتعليل قصير." },
+  { ic:"🌙", t:"مراجعة ليلة الامتحان", d:"ملخص مركّز", p:"اعمل ملخص مراجعة ليلة الامتحان لباب: \nفيه كل القوانين، والتعريفات المهمة، والأفكار اللي بتتكرر في الامتحانات، في صفحة واحدة." },
+  { ic:"🎬", t:"أفكار فيديوهات يوتيوب", d:"عناوين + سكريبت", p:"اقترح 5 أفكار فيديوهات يوتيوب لقناة شرح فيزياء للثانوية العامة عن: \nلكل فكرة: عنوان جذاب، أول 15 ثانية (Hook)، والنقاط الأساسية للفيديو." },
+  { ic:"📣", t:"بوست فيسبوك", d:"إعلان أو محتوى", p:"اكتب بوست فيسبوك لصفحتي (م. علي فرج - فيزياء وكيمياء) عن: \nبأسلوب قريب من طلاب الثانوية وأولياء الأمور، مع دعوة واضحة للحجز أو التفاعل." },
+];
+
+function toast(t){ const e=$("#toast"); e.textContent=t; e.classList.add("on"); clearTimeout(toast.t); toast.t=setTimeout(()=>e.classList.remove("on"),1800); }
+function esc(s){ return s.replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+
+// تحويل Markdown بسيط لـ HTML (بعد تأمين النص)
+function md(src){
+  const lines = esc(src).split("\n"); let html = "", list = null, para = [], code = null, table = null;
+  const inline = s => s.replace(/`([^`]+)`/g,"<code>$1</code>").replace(/\*\*([^*]+)\*\*/g,"<b>$1</b>").replace(/(^|[^*])\*([^*\n]+)\*/g,"$1<i>$2</i>");
+  const flushP = () => { if(para.length){ html += "<p>"+para.map(inline).join("<br>")+"</p>"; para=[]; } };
+  const flushL = () => { if(list){ html += `<${list.t}>`+list.items.map(x=>"<li>"+inline(x)+"</li>").join("")+`</${list.t}>`; list=null; } };
+  const flushT = () => { if(table){ html += "<table>"+table.map((r,i)=>"<tr>"+r.map(c=>i?`<td>${inline(c)}</td>`:`<th>${inline(c)}</th>`).join("")+"</tr>").join("")+"</table>"; table=null; } };
+  const flush = () => { flushP(); flushL(); flushT(); };
+  for(const raw of lines){
+    const l = raw.trimEnd();
+    if(code !== null){ if(/^```/.test(l.trim())){ html += "<pre>"+code.join("\n")+"</pre>"; code=null; } else code.push(raw); continue; }
+    if(/^```/.test(l.trim())){ flush(); code = []; continue; }
+    let m;
+    if(/^\s*\|.*\|\s*$/.test(l)){ flushP(); flushL(); if(/^\s*\|[\s:|-]+\|\s*$/.test(l)) continue; (table ||= []).push(l.trim().slice(1,-1).split("|").map(c=>c.trim())); continue; }
+    flushT();
+    if((m = l.match(/^#{1,6}\s+(.*)/))){ flush(); html += "<h3>"+inline(m[1])+"</h3>"; continue; }
+    if((m = l.match(/^\s*[-•*]\s+(.*)/))){ flushP(); if(!list || list.t!=="ul"){ flushL(); list={t:"ul",items:[]}; } list.items.push(m[1]); continue; }
+    if((m = l.match(/^\s*\d+[.)]\s+(.*)/))){ flushP(); if(!list || list.t!=="ol"){ flushL(); list={t:"ol",items:[]}; } list.items.push(m[1]); continue; }
+    if(!l.trim()){ flush(); continue; }
+    flushL(); para.push(l);
+  }
+  if(code !== null) html += "<pre>"+code.join("\n")+"</pre>";
+  flush();
+  return html;
+}
+
+function saveHistory(){
+  // الصور مش بتتحفظ (حجمها كبير)، النص بس
+  const slim = history.slice(-40).map(m => ({ role:m.role, text:m.text, hadImage: !!(m.image || m.hadImage) }));
+  LS.set(HK, JSON.stringify(slim));
+}
+
+function bubble(m, i){
+  const wrap = document.createElement("div");
+  wrap.className = "msg " + (m.role === "user" ? "user" : "bot");
+  const b = document.createElement("div");
+  b.className = "bubble" + (m.error ? " err" : "");
+  if(m.role === "user"){
+    if(m.image){ const img = document.createElement("img"); img.src = m.image; b.appendChild(img); }
+    else if(m.hadImage){ const s = document.createElement("div"); s.style.opacity=".7"; s.style.fontSize="12px"; s.textContent="📷 (صورة)"; b.appendChild(s); }
+    b.appendChild(document.createTextNode(m.text));
+  } else if(m.pending && !m.text){
+    b.innerHTML = '<span class="dots"><i></i><i></i><i></i></span>';
+  } else {
+    b.innerHTML = m.error ? esc(m.text) : md(m.text);
+  }
+  wrap.appendChild(b);
+  if(m.role === "assistant" && !m.pending && !m.error && m.text){
+    const t = document.createElement("div"); t.className = "tools";
+    t.innerHTML = '<button data-a="copy">⧉ نسخ</button><button data-a="wa">واتساب</button>';
+    t.onclick = e => {
+      const a = e.target.dataset.a; if(!a) return;
+      if(a === "copy") navigator.clipboard?.writeText(m.text).then(()=>toast("اتنسخ ✓"), ()=>toast("تعذر النسخ"));
+      if(a === "wa") window.open("https://wa.me/?text=" + encodeURIComponent(m.text.replace(/\*\*/g,"*").replace(/^#+\s*/gm,"")), "_blank");
+    };
+    wrap.appendChild(t);
+  }
+  if(m.error && i === history.length - 1){
+    const t = document.createElement("div"); t.className = "tools";
+    t.innerHTML = '<button>↻ حاول تاني</button>';
+    t.onclick = retry; wrap.appendChild(t);
+  }
+  return wrap;
+}
+
+function render(){
+  const chat = $("#chat"); chat.innerHTML = "";
+  history.forEach((m,i) => chat.appendChild(bubble(m,i)));
+  $("#welcome").classList.toggle("hidden", history.length > 0 || !token);
+}
+function renderLast(){
+  const chat = $("#chat"), i = history.length - 1;
+  if(chat.lastChild) chat.replaceChild(bubble(history[i], i), chat.lastChild);
+}
+const nearBottom = () => innerHeight + scrollY > document.body.scrollHeight - 140;
+const toBottom = () => scrollTo({ top: document.body.scrollHeight });
+
+function setBusy(v){
+  busy = v; const s = $("#send");
+  s.classList.toggle("stop", v); s.textContent = v ? "■" : "➤"; s.setAttribute("aria-label", v ? "إيقاف" : "إرسال");
+}
+
+function showLogin(msg){
+  $("#loginBox").classList.remove("hidden"); $("#composer").classList.add("hidden"); $("#welcome").classList.add("hidden");
+  $("#loginMsg").textContent = msg || "";
+}
+
+const ERR = {
+  "not-configured": "المساعد لسه مش متوصل بسيرفر OmniRoute. لازم تضيف OMNIROUTE_URL و OMNIROUTE_API_KEY في إعدادات Netlify.",
+  "not-allowed": "الحساب ده مش مسموح له يستخدم المساعد.",
+  "upstream-unreachable": "سيرفر OmniRoute مش بيرد. اتأكد إنه شغال.",
+  "upstream-auth": "مفتاح OmniRoute غلط أو اتلغى. راجع OMNIROUTE_API_KEY.",
+  "upstream-error": "سيرفر OmniRoute رجّع خطأ (ممكن مفيش موديل متاح دلوقتي أو الصورة مش مدعومة). حاول تاني بعد شوية.",
+  "bad-request": "الرسالة طويلة أو الصورة كبيرة. ابدأ محادثة جديدة أو صغّر الصورة.",
+};
+
+async function ask(){
+  setBusy(true);
+  const msgs = history.filter(m => !m.error && !m.pending).map(m => ({ role:m.role, text:m.text, image:m.image }));
+  const bot = { role:"assistant", text:"", pending:true };
+  history.push(bot); $("#chat").appendChild(bubble(bot, history.length-1)); toBottom();
+  ctrl = new AbortController();
+  try{
+    const r = await fetch("/ai", {
+      method:"POST", cache:"no-store", signal: ctrl.signal,
+      headers:{ "content-type":"application/json", authorization:"Bearer " + token },
+      body: JSON.stringify({ subject, messages: msgs }),
+    });
+    if(!r.ok){
+      let code = ""; try{ code = (await r.json()).code }catch(e){}
+      if(r.status === 401){ history.pop(); history.pop(); LS.del(TK); token = null; render(); showLogin("انتهت الجلسة، سجّل دخول تاني."); return; }
+      if(r.status === 429) throw new Error("طلبات كتير ورا بعض. استنى دقيقة وحاول تاني.");
+      throw new Error(ERR[code] || "حصل خطأ في السيرفر (" + r.status + ").");
+    }
+    const reader = r.body.getReader(), dec = new TextDecoder();
+    while(true){
+      const { done, value } = await reader.read(); if(done) break;
+      const stick = nearBottom();
+      bot.text += dec.decode(value, { stream:true }); renderLast(); if(stick) toBottom();
+    }
+    if(!bot.text.trim()) throw new Error("الرد جه فاضي. حاول تاني أو غيّر صياغة السؤال.");
+  }catch(e){
+    if(e.name === "AbortError"){ if(!bot.text) bot.text = "(اتوقف)"; }
+    else if(!bot.text){ bot.error = true; bot.text = e.message === "Failed to fetch" || e instanceof TypeError ? "مفيش اتصال بالنت." : e.message; }
+  }finally{
+    const stick = nearBottom();
+    bot.pending = false; setBusy(false); ctrl = null;
+    renderLast(); saveHistory(); if(stick) toBottom();
+  }
+}
+
+function send(){
+  if(busy){ ctrl?.abort(); return; }
+  const text = $("#input").value.trim();
+  if(!text && !image) return;
+  if(!token){ showLogin(); return; }
+  history.push({ role:"user", text, image });
+  $("#input").value = ""; autosize(); clearImage();
+  render(); ask();
+}
+function retry(){
+  if(busy) return;
+  if(history.length && history[history.length-1].error) history.pop();
+  render(); ask();
+}
+
+// صورة المسألة: بنصغرها على الموبايل قبل الإرسال
+function clearImage(){ image = null; $("#preview").style.display = "none"; $("#file").value = ""; }
+$("#attach").onclick = () => $("#file").click();
+$("#dropImg").onclick = clearImage;
+$("#file").onchange = async e => {
+  const f = e.target.files[0]; if(!f) return;
+  try{
+    const bmp = await createImageBitmap(f);
+    const max = 1400, k = Math.min(1, max / Math.max(bmp.width, bmp.height));
+    const c = document.createElement("canvas"); c.width = Math.round(bmp.width*k); c.height = Math.round(bmp.height*k);
+    c.getContext("2d").drawImage(bmp, 0, 0, c.width, c.height);
+    image = c.toDataURL("image/jpeg", 0.82);
+    $("#previewImg").src = image; $("#preview").style.display = "flex";
+  }catch(err){ toast("تعذر قراءة الصورة"); clearImage(); }
+};
+
+function autosize(){ const t = $("#input"); t.style.height = "auto"; t.style.height = Math.min(t.scrollHeight, 160) + "px"; }
+$("#input").addEventListener("input", autosize);
+$("#input").addEventListener("keydown", e => { if(e.key === "Enter" && !e.shiftKey && !matchMedia("(pointer:coarse)").matches){ e.preventDefault(); send(); } });
+$("#send").onclick = send;
+
+$("#newChat").onclick = () => {
+  if(busy) ctrl?.abort();
+  if(history.length && !confirm("تبدأ محادثة جديدة؟ المحادثة الحالية هتتمسح.")) return;
+  history = []; saveHistory(); render(); $("#input").focus();
+};
+
+function renderSubjects(){ document.querySelectorAll("#subjects button").forEach(b => b.classList.toggle("on", b.dataset.s === subject)); }
+$("#subjects").onclick = e => { const s = e.target.closest("button")?.dataset.s; if(!s) return; subject = s; LS.set(SK, s); renderSubjects(); };
+
+$("#quick").innerHTML = QUICK.map((q,i) => `<button data-i="${i}"><span>${q.ic}</span><b>${q.t}</b>${q.d}</button>`).join("");
+$("#quick").onclick = e => {
+  const i = e.target.closest("button")?.dataset.i; if(i == null) return;
+  const t = $("#input"); t.value = QUICK[i].p; autosize(); t.focus();
+  const pos = t.value.indexOf(": \n") >= 0 ? t.value.indexOf(": \n") + 2 : t.value.length;
+  t.setSelectionRange(pos, pos);
+};
+
+$("#loginBtn").onclick = async () => {
+  const email = $("#email").value.trim(), pass = $("#pass").value;
+  if(!email || !pass){ $("#loginMsg").textContent = "اكتب الإيميل وكلمة السر"; return; }
+  $("#loginBtn").disabled = true; $("#loginMsg").textContent = "";
+  try{
+    const r = await fetch("/api/login", { method:"POST", cache:"no-store", headers:{ "content-type":"application/json" }, body: JSON.stringify({ email, pass }) });
+    const j = await r.json().catch(() => ({}));
+    if(!r.ok) throw new Error(j.code === "invalid-credential" ? "الإيميل أو كلمة السر غلط" : j.code === "invalid-email" ? "الإيميل مش صحيح" : "تعذر الدخول (" + r.status + ")");
+    token = j.token; LS.set(TK, token);
+    $("#loginBox").classList.add("hidden"); $("#composer").classList.remove("hidden"); $("#pass").value = "";
+    render(); toast("أهلاً ✓");
+  }catch(e){ $("#loginMsg").textContent = e instanceof TypeError ? "مفيش اتصال بالنت" : e.message; }
+  finally{ $("#loginBtn").disabled = false; }
+};
+$("#pass").addEventListener("keydown", e => { if(e.key === "Enter") $("#loginBtn").click(); });
+
+renderSubjects(); render(); autosize();
+if(!token) showLogin();
+fetch("/ai", { cache:"no-store" }).then(r => r.json()).then(j => {
+  if(!j.configured) toast("⚠ المساعد لسه مش متوصل بـ OmniRoute");
+}).catch(() => {});
+</script>
+</body>
