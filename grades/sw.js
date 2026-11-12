@@ -1,5 +1,5 @@
 // يشتغل من غير نت: الصفحة بتتجاب من النت لو متاح (عشان التحديثات) وإلا من الكاش
-const CACHE = 'ali-grades-v3';
+const CACHE = 'ali-grades-v4';
 const ASSETS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', (e) => {
@@ -24,15 +24,15 @@ self.addEventListener('fetch', (e) => {
   const cacheable = url.origin === self.location.origin || /^fonts\.(googleapis|gstatic)\.com$/.test(url.hostname);
   if (!cacheable) return;
 
-  // ملفات التطبيق: من النت الأول (عشان التحديثات) ولو مفيش نت من الكاش
+  // ملفات التطبيق: بتفتح فورًا من الموبايل، والتحديث بيتحمل في الخلفية ويظهر المرة الجاية
   if (url.origin === self.location.origin) {
     const key = req.mode === 'navigate' ? './index.html' : req;
-    e.respondWith(
-      fetch(req).then((res) => {
-        if (res.ok) { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(key, copy)); }
-        return res;
-      }).catch(() => caches.match(key))
-    );
+    const fresh = fetch(req).then((res) => {
+      if (res.ok) { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(key, copy)); }
+      return res;
+    });
+    e.waitUntil(fresh.catch(() => {}));
+    e.respondWith(caches.match(key).then((hit) => hit || fresh));
     return;
   }
 

@@ -81,12 +81,26 @@ export default async (req: Request, context: Context) => {
       }
       if (req.method === "DELETE") { await s.delete(base + p); return json({ ok: true }) }
     }
+    if (route === "batch" && req.method === "POST") {
+      // رفع/حذف مستندات كتير في طلب واحد (أسرع بكتير من طلب لكل طالب)
+      let b: { set?: Record<string, unknown>; del?: string[] }
+      try { b = await req.json() } catch { return fail("bad-request") }
+      const sets = Object.entries(b.set || {}), dels = Array.isArray(b.del) ? b.del : []
+      if (sets.length + dels.length > 2000) return fail("too-many")
+      if (!sets.every(([k]) => DOC_RE.test(k)) || !dels.every((k) => typeof k === "string" && DOC_RE.test(k))) return fail("bad-path")
+      const ops: (() => Promise<unknown>)[] = [
+        ...sets.map(([k, v]) => () => s.set(base + k, JSON.stringify(v))),
+        ...dels.map((k) => () => s.delete(base + k)),
+      ]
+      for (let i = 0; i < ops.length; i += 50) await Promise.all(ops.slice(i, i + 50).map((f) => f()))
+      return json({ ok: true, n: ops.length })
+    }
     if (route === "col" && req.method === "GET") {
       if (!COL_RE.test(p)) return fail("bad-path")
       const { blobs } = await s.list({ prefix: base + p + "/" })
       const docs: { id: string; data: unknown }[] = []
-      for (let i = 0; i < blobs.length; i += 50) {
-        const part = await Promise.all(blobs.slice(i, i + 50).map(async (b) => ({
+      for (let i = 0; i < blobs.length; i += 100) {
+        const part = await Promise.all(blobs.slice(i, i + 100).map(async (b) => ({
           id: b.key.slice(base.length + p.length + 1),
           data: await s.get(b.key, { type: "json" }),
         })))

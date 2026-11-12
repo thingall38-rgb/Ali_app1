@@ -514,9 +514,12 @@ async function persist(){if(!cloud)return;if(navigator.onLine===false){offMsg();
  try{const r0=rev,d=splitDocs(),jobs=[];
   for(const k of Object.keys(d)){const j=JSON.stringify(d[k]);if(written[k]!==j)jobs.push([k,j])}
   const del=Object.keys(written).filter(k=>!(k in d));
-  let n=0;for(const[k,j]of jobs){await withTO(cloud.doc(k).set({j}),20000);written[k]=j;n++;if(jobs.length>10)setCloud("جاري الحفظ على السيرفر "+n+"/"+jobs.length)}
+  if(cloud.batch){/* سيرفر Netlify: كل التعديلات في طلبات قليلة */
+   const parts=[];let cur=[],sz=0;for(const job of jobs){if(cur.length&&(sz+job[1].length>1.5e6||cur.length>=400)){parts.push(cur);cur=[];sz=0}cur.push(job);sz+=job[1].length+job[0].length}if(cur.length)parts.push(cur);
+   let n=0;for(const part of parts){const set={};part.forEach(([k,j])=>set[k]={j});await withTO(cloud.batch({set}),45000);part.forEach(([k,j])=>written[k]=j);n+=part.length;if(jobs.length>50)setCloud("جاري الحفظ على السيرفر "+n+"/"+jobs.length)}}
+  else{let n=0;for(const[k,j]of jobs){await withTO(cloud.doc(k).set({j}),20000);written[k]=j;n++;if(jobs.length>10)setCloud("جاري الحفظ على السيرفر "+n+"/"+jobs.length)}}
   if(del.length>3&&!forceDel){pendingDel=del.length;setCloud("⚠ حذف "+del.length+" طالب من السيرفر محتاج تأكيد. دوس هنا","bad")}
-  else{for(const k of del){await withTO(cloud.doc(k).delete(),20000);delete written[k]}pendingDel=0;if(rev===r0){try{localStorage.removeItem(KEY+"_dirty")}catch(e){}}setCloud(okMsg())}}
+  else{if(cloud.batch&&del.length){await withTO(cloud.batch({del}),45000);del.forEach(k=>delete written[k])}else for(const k of del){await withTO(cloud.doc(k).delete(),20000);delete written[k]}pendingDel=0;if(rev===r0){try{localStorage.removeItem(KEY+"_dirty")}catch(e){}}setCloud(okMsg())}}
  catch(e){if(navigator.onLine===false||(e&&e.code==="timeout"))offMsg();else setCloud("⚠ تعذر الحفظ على السيرفر ("+(e&&e.code||"خطأ")+"). بياناتك محفوظة على التلفون وهنعيد المحاولة.","bad")}
  busy=false;if(again){again=false;persist()}}
 $("#cloudSt").onclick=async()=>{if(!pendingDel){if(!cloud&&typeof claude==="undefined"){showTab("students");const d=$("details.adv");if(d)d.open=true;$("#fbCard").scrollIntoView({behavior:"smooth"})}return}if(await ask("هيتم حذف "+pendingDel+" طالب من السيرفر نهائيًا. متأكد؟")===null)return;forceDel=true;await persist();forceDel=false};
@@ -527,7 +530,7 @@ async function api(method,path,body){const r=await fetch("/api/"+path,{method,ca
  if(r.status===401&&srvTok&&j.code==="unauthenticated"){srvSignedOut();throw{code:"session-expired"}}
  if(!r.ok)throw{code:j.code||"http-"+r.status};return j}
 const enc=encodeURIComponent,snapOf=(id,d)=>({id,exists:d!=null,data:()=>d});
-function srvDb(){return{doc:p=>({get:async()=>snapOf(p.split("/").pop(),(await api("GET","doc?p="+enc(p))).data),set:v=>api("PUT","doc?p="+enc(p),v),delete:()=>api("DELETE","doc?p="+enc(p))}),
+function srvDb(){return{batch:b=>api("POST","batch",b),doc:p=>({get:async()=>snapOf(p.split("/").pop(),(await api("GET","doc?p="+enc(p))).data),set:v=>api("PUT","doc?p="+enc(p),v),delete:()=>api("DELETE","doc?p="+enc(p))}),
  collection:p=>({limit(){return this},get:async()=>{const docs=(await api("GET","col?p="+enc(p))).docs.map(d=>snapOf(d.id,d.data));return{empty:!docs.length,docs}}})}}
 function srvSignedOut(){srvTok=null;srvEmail="";cloud=null;written={};try{localStorage.removeItem(TK);localStorage.removeItem(EK);localStorage.removeItem(KEY+"_synced")}catch(e){}renderFb();setCloud("☁ سجّل دخول عشان تتزامن بياناتك · دوس هنا","bad")}
 function renderFb(){$("#fbLogin").hidden=!!srvTok;$("#fbOutBtn").hidden=!srvTok;
