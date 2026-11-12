@@ -51,5 +51,16 @@
    | `OMNIROUTE_MODEL` | اختياري، الافتراضي `auto` |
 3. اعمل **Deploy** جديد، وافتح `/assistant/` وادخل بنفس حساب المزامنة.
 
-- حل المسائل من الصور محتاج موديل بيدعم الصور في OmniRoute.
+### بديل أسهل: من غير سيرفر OmniRoute (مجاني تمامًا)
+السيرفر بيتكلم بصيغة OpenAI، فتقدر توصله مباشرة بأي مزوّد مجاني من قائمة [awesome-freellm-apis](https://github.com/open-free-llm-api/awesome-freellm-apis):
+
+| المزوّد | `OMNIROUTE_URL` | `OMNIROUTE_MODEL` | مفتاح API |
+|---|---|---|---|
+| **Google Gemini** (الأفضل: عربي كويس + بيقرا الصور) | `https://generativelanguage.googleapis.com/v1beta/openai` | موديل Flash من AI Studio (مثلاً `gemini-3.8-flash`) | aistudio.google.com/app/apikey |
+| Groq (أسرع رد) | `https://api.groq.com/openai/v1` | موديل من console.groq.com | console.groq.com/keys |
+| OpenRouter (موديلات كتير) | `https://openrouter.ai/api/v1` | أي موديل آخره `:free` | openrouter.ai |
+
+- لازم تحط `OMNIROUTE_MODEL` هنا (كلمة `auto` شغالة مع OmniRoute بس).
+- الحدود المجانية بتتغير، ولو المزوّد وقف انقل لغيره بتغيير المتغيرات بس.
+- حل المسائل من الصور محتاج موديل بيدعم الصور (Gemini بيدعمها).
 - الكود: `netlify/functions/ai.mts` (السيرفر) و `assistant/index.html` (الصفحة).
